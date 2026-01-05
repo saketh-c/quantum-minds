@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Mind | Technical Architecture Masterclass</title>
+    
+    <!-- KaTeX for LaTeX rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- Prism.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+    
+    <!-- Mermaid.js for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    
+    <!-- IBM Plex font for clinical aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ============================================
+           CSS VARIABLES - Clinical Color Palette
+           ============================================ */
+        :root {
+            --white: #ffffff;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+            --blue-50: #eff6ff;
+            --blue-100: #dbeafe;
+            --blue-500: #3b82f6;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+            --emerald-50: #ecfdf5;
+            --emerald-100: #d1fae5;
+            --emerald-500: #10b981;
+            --emerald-600: #059669;
+            --emerald-700: #047857;
+            --red-500: #ef4444;
+            --orange-500: #f97316;
+            
+            --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+        }
+        
+        /* ============================================
+           BASE STYLES
+           ============================================ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--slate-700);
+            background: var(--slate-50);
+        }
+        
+        /* ============================================
+           LAYOUT
+           ============================================ */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--blue-600), var(--emerald-600));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--slate-800);
+        }
+        
+        .logo-subtitle {
+            font-size: 12px;
+            color: var(--slate-500);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .nav a {
+            font-size: 13px;
+            color: var(--slate-600);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .nav a:hover {
+            background: var(--slate-100);
+            color: var(--blue-600);
+        }
+        
+        /* Main content */
+        main {
+            padding: 48px 0 96px;
+        }
+        
+        /* Sections */
+        .section {
+            background: var(--white);
+            border: 1px solid var(--slate-200);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        
+        .section-number {
+            width: 32px;
+            height: 32px;
+            background: var(--blue-600);
+            color: var(--white);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--slate-800);
+        }
+        
+        /* Typography */
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--slate-800);
+            margin: 24px 0 12px;
+        }
+        
+        h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--slate-700);
+            margin: 20px 0 8px;
+        }
+        
+        p {
+            margin-bottom: 16px;
+            color: var(--slate-600);
+        }
+        
+        strong {
+            color: var(--slate-800);
+            font-weight: 600;
+        }
+        
+        /* Tables */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--slate-200);
+        }
+        
+        th {
+            background: var(--slate-50);
+            font-weight: 600;
+            color: var(--slate-700);
+            white-space: nowrap;
+        }
+        
+        tr:hover td {
+            background: var(--slate-50);
+        }
+        
+        /* Code blocks */
+        pre[class*="language-"] {
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 13px;
+        }
+        
+        code {
+            font-family: var(--font-mono);
+        }
+        
+        :not(pre) > code {
+            background: var(--slate-100);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: var(--slate-700);
+        }
+        
+        /* Mermaid diagrams */
+        .mermaid {
+            background: var(--slate-50);
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+            text-align: center;
+        }
+        
+        /* Math blocks */
+        .math-block {
+            background: var(--blue-50);
+            border: 1px solid var(--blue-100);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 16px 0;
+            text-align: center;
+            overflow-x: auto;
+        }
+        
+        .math-inline {
+            background: var(--blue-50);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        /* Info boxes */
+        .info-box {
+            background: var(--emerald-50);
+            border: 1px solid var(--emerald-100);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 16px 0;
+        }
+        
+        .info-box-title {
+            font-weight: 600;
+            color: var(--emerald-700);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-box p {
+            color: var(--emerald-700);
+            margin: 0;
+        }
+        
+        .warning-box {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+        }
+        
+        .warning-box .info-box-title,
+        .warning-box p {
+            color: #92400e;
+        }
+        
+        /* Interactive containers */
+        .interactive-container {
+            background: var(--slate-50);
+            border: 2px solid var(--slate-200);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        
+        .interactive-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--blue-600);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+        
+        /* Sliders */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 16px 0;
+        }
+        
+        .slider-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--slate-600);
+            min-width: 80px;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            background: var(--slate-200);
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--blue-600);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .slider-value {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--slate-800);
+            min-width: 60px;
+            text-align: right;
+        }
+        
+        /* Toggle buttons */
+        .toggle-group {
+            display: flex;
+            gap: 16px;
+            margin: 16px 0;
+        }
+        
+        .toggle-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .toggle-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--slate-600);
+        }
+        
+        .toggle-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            border: 2px solid var(--slate-300);
+            background: var(--white);
+            font-family: var(--font-mono);
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--slate-400);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .toggle-btn.active {
+            background: var(--blue-600);
+            border-color: var(--blue-600);
+            color: var(--white);
+        }
+        
+        .toggle-btn:hover {
+            border-color: var(--blue-500);
+        }
+        
+        /* Canvas */
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            margin: 24px 0;
+        }
+        
+        canvas {
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Result displays */
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        
+        .result-card {
+            background: var(--white);
+            border: 1px solid var(--slate-200);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .result-label {
+            font-size: 12px;
+            color: var(--slate-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        
+        .result-value {
+            font-family: var(--font-mono);
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--slate-800);
+        }
+        
+        /* Truth table */
+        .truth-table {
+            margin: 16px 0;
+        }
+        
+        .truth-table th,
+        .truth-table td {
+            text-align: center;
+            font-family: var(--font-mono);
+        }
+        
+        .truth-table tr.highlight td {
+            background: var(--blue-50);
+            font-weight: 600;
+        }
+        
+        /* Lists */
+        ul, ol {
+            margin: 12px 0 16px 24px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+            color: var(--slate-600);
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-blue {
+            background: var(--blue-100);
+            color: var(--blue-700);
+        }
+        
+        .badge-emerald {
+            background: var(--emerald-100);
+            color: var(--emerald-700);
+        }
+        
+        .badge-slate {
+            background: var(--slate-200);
+            color: var(--slate-700);
+        }
+        
+        /* Hero section */
+        .hero {
+            text-align: center;
+            padding: 48px 0;
+            margin-bottom: 32px;
+        }
+        
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--slate-900);
+            margin-bottom: 16px;
+        }
+        
+        .hero p {
+            font-size: 18px;
+            color: var(--slate-500);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Tier indicators */
+        .tier-low { color: var(--emerald-600); }
+        .tier-moderate { color: var(--blue-600); }
+        .tier-high { color: var(--orange-500); }
+        .tier-crisis { color: var(--red-500); }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-inner {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .nav {
+                justify-content: center;
+            }
+            
+            .hero h1 {
+                font-size: 32px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo">
+                <div class="logo-icon">QM</div>
+                <div>
+                    <div class="logo-text">Quantum Mind</div>
+                    <div class="logo-subtitle">Technical Architecture</div>
+                </div>
+            </div>
+            <nav class="nav">
+                <a href="#topology">Topology</a>
+                <a href="#features">Features</a>
+                <a href="#pipeline">Pipeline</a>
+                <a href="#quantum">Quantum</a>
+                <a href="#training">Training</a>
+                <a href="#tiers">Tiers</a>
+                <a href="#hume">Hume AI</a>
+                <a href="#together">LLM</a>
+                <a href="#auth">Auth</a>
+                <a href="#deploy">Deploy</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main>
+        <div class="container">
+            <!-- Hero -->
+            <div class="hero">
+                <h1>Quantum Mind Architecture</h1>
+                <p>A comprehensive technical breakdown of the mental health triage system powered by Variational Quantum Circuits, voice prosody analysis, and LLM integration.</p>
+            </div>
+            
+            <!-- Section 1: System Topology -->
+            <section id="topology" class="section">
+                <div class="section-header">
+                    <div class="section-number">1</div>
+                    <h2 class="section-title">System Topology</h2>
+                </div>
+                
+                <p>The Quantum Mind application follows a three-tier architecture with external API integrations for voice analysis and natural language processing.</p>
+                
+                <div class="mermaid">
+flowchart TB
+    subgraph frontend [React Frontend - Vite + Tailwind]
+        FocusGame[Focus Game<br/>Stroop Test]
+        MemoryGame[Memory Game<br/>Pattern Recall]
+        HumeVoice[Hume Voice<br/>Prosody Analysis]
+        SurveyForm[Survey Form<br/>Lifestyle Data]
+    end
+    
+    subgraph backend [Flask Backend - Gunicorn]
+        JWT[JWT Auth<br/>flask-jwt-extended]
+        Predict["/predict<br/>Quantum Inference"]
+        HumeToken["/hume/token<br/>OAuth Proxy"]
+        Analyze["/analyze_transcript<br/>LLM Extraction"]
+    end
+    
+    subgraph quantum [PennyLane Engine]
+        Circuit["14-Qubit VQC<br/>2 Layers × 84 Parameters"]
+        Weights["quantum_weights.npy<br/>Trained Model"]
+    end
+    
+    subgraph external [External APIs]
+        HumeAPI["Hume AI EVI<br/>WebSocket Streaming"]
+        TogetherAPI["Together AI<br/>Llama 3.1-8B"]
+    end
+    
+    FocusGame --> JWT
+    MemoryGame --> JWT
+    SurveyForm --> JWT
+    JWT --> Predict
+    Predict --> Circuit
+    Circuit --> Weights
+    HumeVoice --> HumeToken
+    HumeToken --> HumeAPI
+    SurveyForm --> Analyze
+    Analyze --> TogetherAPI
+                </div>
+                
+                <h3>Data Flow Summary</h3>
+                <ol>
+                    <li><strong>User Authentication:</strong> JWT token issued on login, stored in localStorage</li>
+                    <li><strong>Feature Collection:</strong> Games + Voice + Survey → 14-element feature vector</li>
+                    <li><strong>Quantum Inference:</strong> Feature vector encoded into qubits, processed through VQC</li>
+                    <li><strong>Risk Classification:</strong> Pauli-Z expectation mapped to probability → tier assignment</li>
+                </ol>
+            </section>
+            
+            <!-- Section 2: 14-Feature Vector Mapping -->
+            <section id="features" class="section">
+                <div class="section-header">
+                    <div class="section-number">2</div>
+                    <h2 class="section-title">14-Feature Vector Mapping</h2>
+                </div>
+                
+                <p>Each assessment generates a 14-dimensional feature vector, where each dimension maps to a qubit in the quantum circuit. All values are normalized to the range [0, 1].</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Index</th>
+                                <th>Feature</th>
+                                <th>Source</th>
+                                <th>Normalization</th>
+                                <th>Clinical Relevance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>0</code></td>
+                                <td><strong>Connectivity</strong></td>
+                                <td>Focus Game (Stroop)</td>
+                                <td>Speed × Accuracy</td>
+                                <td>Prefrontal cortex function</td>
+                            </tr>
+                            <tr>
+                                <td><code>1</code></td>
+                                <td><strong>Hippocampal</strong></td>
+                                <td>Memory Game</td>
+                                <td>max_level / 6</td>
+                                <td>Working memory capacity</td>
+                            </tr>
+                            <tr>
+                                <td><code>2</code></td>
+                                <td><strong>Sleep</strong></td>
+                                <td>Survey</td>
+                                <td>(val - 1) / 4</td>
+                                <td>Sleep quality indicator</td>
+                            </tr>
+                            <tr>
+                                <td><code>3</code></td>
+                                <td><strong>Pubertal</strong></td>
+                                <td>Age proxy</td>
+                                <td>(age - 12) / 18</td>
+                                <td>Developmental stage</td>
+                            </tr>
+                            <tr>
+                                <td><code>4</code></td>
+                                <td><strong>Anxiety</strong></td>
+                                <td>Hume Prosody</td>
+                                <td>Direct score [0, 1]</td>
+                                <td>Voice-detected anxiety</td>
+                            </tr>
+                            <tr>
+                                <td><code>5</code></td>
+                                <td><strong>Isolation</strong></td>
+                                <td>Hume Sadness</td>
+                                <td>Direct score [0, 1]</td>
+                                <td>Social withdrawal indicator</td>
+                            </tr>
+                            <tr>
+                                <td><code>6</code></td>
+                                <td><strong>Substance</strong></td>
+                                <td>Survey</td>
+                                <td>(val - 1) / 4</td>
+                                <td>Substance use risk</td>
+                            </tr>
+                            <tr>
+                                <td><code>7</code></td>
+                                <td><strong>Diet</strong></td>
+                                <td>Survey</td>
+                                <td>(val - 1) / 4</td>
+                                <td>Nutritional habits</td>
+                            </tr>
+                            <tr>
+                                <td><code>8</code></td>
+                                <td><strong>Academic</strong></td>
+                                <td>Survey</td>
+                                <td>(val - 1) / 4</td>
+                                <td>Academic stress level</td>
+                            </tr>
+                            <tr>
+                                <td><code>9</code></td>
+                                <td><strong>Family</strong></td>
+                                <td>Survey</td>
+                                <td>Binary → 0.2 / 0.8</td>
+                                <td>Family history of mental illness</td>
+                            </tr>
+                            <tr>
+                                <td><code>10</code></td>
+                                <td><strong>Bullying</strong></td>
+                                <td>Placeholder</td>
+                                <td>Uniform [0.2, 0.8]</td>
+                                <td>Peer victimization</td>
+                            </tr>
+                            <tr>
+                                <td><code>11</code></td>
+                                <td><strong>Safety</strong></td>
+                                <td>Placeholder</td>
+                                <td>Uniform [0.2, 0.8]</td>
+                                <td>Environmental safety</td>
+                            </tr>
+                            <tr>
+                                <td><code>12</code></td>
+                                <td><strong>Monitoring</strong></td>
+                                <td>Placeholder</td>
+                                <td>Uniform [0.2, 0.8]</td>
+                                <td>Parental monitoring</td>
+                            </tr>
+                            <tr>
+                                <td><code>13</code></td>
+                                <td><strong>Exercise</strong></td>
+                                <td>Placeholder</td>
+                                <td>Uniform [0.2, 0.8]</td>
+                                <td>Physical activity level</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="info-box">
+                    <div class="info-box-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                        Hilbert Space Dimensionality
+                    </div>
+                    <p>With 14 qubits, the quantum state space has dimension 2<sup>14</sup> = 16,384. The VQC explores correlations in this exponentially large space that would be computationally expensive for classical methods.</p>
+                </div>
+            </section>
+            
+            <!-- Section 3: Data Pipeline -->
+            <section id="pipeline" class="section">
+                <div class="section-header">
+                    <div class="section-number">3</div>
+                    <h2 class="section-title">Data Pipeline</h2>
+                </div>
+                
+                <p>The training data is synthesized from the <strong>Student Depression Dataset</strong> (27,000+ records) using domain-specific feature engineering.</p>
+                
+                <h3>Source Data Transformation</h3>
+                <p>The <code>generate_synthetic_data.py</code> script transforms raw survey data into quantum-ready features:</p>
+                
+                <pre><code class="language-python"># Sleep Duration Mapping
+def map_sleep(val):
+    if "Less" in str(val): return 0.2    # &lt; 5 hours
+    if "5-6" in str(val): return 0.5     # 5-6 hours
+    if "7-8" in str(val): return 0.9     # Optimal
+    if "More" in str(val): return 0.8    # &gt; 8 hours
+    return 0.5
+
+# Diet Quality Mapping
+diet_map = {"Healthy": 0.9, "Moderate": 0.5, "Unhealthy": 0.2}</code></pre>
+                
+                <h3>Entanglement Logic for Risk Labels</h3>
+                <p>The risk label is computed using an "entangled distress" formula that captures non-linear interactions:</p>
+                
+                <div class="math-block">
+                    <span class="katex-display">$$\text{Risk} = \text{Depression} \lor \left( \text{Anxiety} > 0.7 \land \text{Connectivity} < 0.5 \right)$$</span>
+                </div>
+                
+                <pre><code class="language-python"># From generate_synthetic_data.py line 112
+final_df['Risk_Label'] = df['Depression'] | (
+    (final_df['4_Anxiety'] > 0.7) & 
+    (final_df['0_Connectivity'] < 0.5)
+)
+final_df['Risk_Label'] = final_df['Risk_Label'].astype(int)</code></pre>
+                
+                <div class="info-box warning-box">
+                    <div class="info-box-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Clinical Interpretation
+                    </div>
+                    <p>This formula captures "anxiety-induced cognitive impairment" — a pattern where high anxiety combined with poor cognitive performance (low connectivity) indicates elevated risk, even without explicit depression diagnosis.</p>
+                </div>
+                
+                <h3>Simulated Game Scores</h3>
+                <p>Cognitive game scores are synthesized as entangled functions of other features:</p>
+                
+                <pre><code class="language-python"># Connectivity (Focus Game) - inversely related to stress factors
+generated_data['0_Connectivity'] = 0.9 - \
+    (generated_data['8_Academic'] * 0.3) - \
+    (generated_data['4_Anxiety'] * 0.4) - \
+    ((1 - generated_data['2_Sleep']) * 0.2)
+
+# Hippocampal (Memory Game) - affected by diet and depression
+generated_data['1_Hippocampal'] = 0.8 - \
+    (generated_data['7_Diet'] * 0.2) - \
+    (df['Depression'] * 0.4)</code></pre>
+            </section>
+            
+            <!-- Section 4: Quantum Circuit Architecture -->
+            <section id="quantum" class="section">
+                <div class="section-header">
+                    <div class="section-number">4</div>
+                    <h2 class="section-title">Quantum Circuit Architecture</h2>
+                </div>
+                
+                <p>The Variational Quantum Classifier (VQC) consists of three phases: data encoding, entanglement layers, and measurement.</p>
+                
+                <h3>4.1 Circuit Overview</h3>
+                <pre><code class="language-python"># From train_vqc.py
+@qml.qnode(dev)
+def circuit(weights, x):
+    # Phase 1: Data Encoding
+    qml.AngleEmbedding(features=x * np.pi, wires=range(QUBITS), rotation='Y')
+    
+    # Phase 2: Parameterized Entanglement
+    qml.StronglyEntanglingLayers(weights, wires=range(QUBITS))
+    
+    # Phase 3: Measurement
+    return qml.expval(qml.PauliZ(0))</code></pre>
+                
+                <h3>4.2 AngleEmbedding: Data Encoding</h3>
+                <p>Each feature value <em>x<sub>i</sub></em> ∈ [0, 1] is encoded into qubit <em>i</em> using a Y-axis rotation:</p>
+                
+                <div class="math-block">
+                    <span class="katex-display">$$\theta_i = x_i \times \pi$$</span>
+                </div>
+                
+                <p>The rotation gate <em>R<sub>Y</sub>(θ)</em> transforms the qubit state:</p>
+                
+                <div class="math-block">
+                    <span class="katex-display">$$R_Y(\theta) = \begin{pmatrix} \cos(\theta/2) & -\sin(\theta/2) \\ \sin(\theta/2) & \cos(\theta/2) \end{pmatrix}$$</span>
+                </div>
+                
+                <p>Applied to the ground state |0⟩:</p>
+                
+                <div class="math-block">
+                    <span class="katex-display">$$R_Y(\theta)|0\rangle = \cos(\theta/2)|0\rangle + \sin(\theta/2)|1\rangle$$</span>
+                </div>
+                
+                <!-- Interactive Qubit Simulator -->
+                <div class="interactive-container">
+                    <div class="interactive-title">Interactive: Qubit Rotation Simulator</div>
+                    
+                    <div class="slider-container">
+                        <span class="slider-label">Feature x:</span>
+                        <input type="range" id="qubit-slider" min="0" max="100" value="50">
+                        <span class="slider-value" id="qubit-x-value">0.50</span>
+                    </div>
+                    
+                    <div class="canvas-container">
+                        <canvas id="qubit-canvas" width="300" height="200"></canvas>
+                    </div>
+                    
+                    <div class="result-grid">
+                        <div class="result-card">
+                            <div class="result-label">Angle θ</div>
+                            <div class="result-value" id="qubit-theta">1.571 rad</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-label">P(|0⟩)</div>
+                            <div class="result-value" id="qubit-p0">0.500</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-label">P(|1⟩)</div>
+                            <div class="result-value" id="qubit-p1">0.500</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-label">⟨Z⟩</div>
+                            <div class="result-value" id="qubit-z">0.000</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>4.3 StronglyEntanglingLayers: Parameterized Entanglement</h3>
+                
+                <p>This layer creates correlations between qubits through a combination of single-qubit rotations and two-qubit entangling gates.</p>
+                
+                <h4>Weight Tensor Structure</h4>
+                <p>Shape: <code>(LAYERS=2, QUBITS=14, 3)</code> = <strong>84 trainable parameters</strong></p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dimension</th>
+                                <th>Size</th>
+                                <th>Meaning</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Axis 0</td>
+                                <td>2</td>
+                                <td>Number of repeated layers</td>
+                            </tr>
+                            <tr>
+                                <td>Axis 1</td>
+                                <td>14</td>
+                                <td>Number of qubits</td>
+                            </tr>
+                            <tr>
+                                <td>Axis 2</td>
+                                <td>3</td>
+                                <td>Euler angles (φ, θ, ω) for general SU(2) rotation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h4>Per-Qubit Operations (Each Layer)</h4>
+                <ol>
+                    <li><strong>Rot Gate:</strong> General single-qubit rotation R(φ, θ, ω) = R<sub>Z</sub>(ω) R<sub>Y</sub>(θ) R<sub>Z</sub>(φ)</li>
+                    <li><strong>CNOT Gates:</strong> Entangling gates connecting adjacent qubits in a circular pattern</li>
+                </ol>
+                
+                <h4>CNOT Gate: The Entanglement Mechanism</h4>
+                <p>The CNOT (Controlled-NOT) gate creates quantum entanglement by conditionally flipping the target qubit based on the control qubit's state:</p>
+                
+                <div class="math-block">
+                    <span class="katex-display">$$\text{CNOT} = \begin{pmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 \\ 0 & 0 & 1 & 0 \end{pmatrix}$$</span>
+                </div>
+                
+                <p>Action: |control, target⟩ → |control, target ⊕ control⟩</p>
+                
+                <!-- Interactive CNOT Simulator -->
+                <div class="interactive-container">
+                    <div class="interactive-title">Interactive: CNOT Gate Simulator</div>
+                    
+                    <p>Click the buttons to toggle qubit states. The target qubit is XORed with the control qubit.</p>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-item">
+                            <span class="toggle-label">Control (Anxiety)</span>
+                            <button class="toggle-btn" id="cnot-control">0</button>
+                        </div>
+                        <div class="toggle-item">
+                            <span class="toggle-label">→ CNOT →</span>
+                            <div style="font-size: 24px; color: var(--blue-600);">⊕</div>
+                        </div>
+                        <div class="toggle-item">
+                            <span class="toggle-label">Target (Sleep)</span>
+                            <button class="toggle-btn" id="cnot-target">0</button>
+                        </div>
+                        <div class="toggle-item">
+                            <span class="toggle-label">Output</span>
+                            <button class="toggle-btn" id="cnot-output" disabled>0</button>
+                        </div>
+                    </div>
+                    
+                    <h4>Truth Table</h4>
+                    <div class="table-wrapper">
+                        <table class="truth-table" id="cnot-truth-table">
+                            <thead>
+                                <tr>
+                                    <th>Control</th>
+                                    <th>Target</th>
+                                    <th>Output</th>
+                                    <th>Clinical Interpretation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr data-control="0" data-target="0">
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>Low anxiety, good sleep → Unchanged</td>
+                                </tr>
+                                <tr data-control="0" data-target="1">
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>Low anxiety, poor sleep → Sleep issue persists</td>
+                                </tr>
+                                <tr data-control="1" data-target="0">
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td>High anxiety, good sleep → Anxiety-induced insomnia</td>
+                                </tr>
+                                <tr data-control="1" data-target="1">
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td>High anxiety, poor sleep → Inverted state</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <h3>4.4 Pauli-Z Measurement</h3>
+                
+                <p>The circuit output is the expectation value of the Pauli-Z operator on qubit 0:</p>
+                
+                <div class="math-block">
+                    <span class="katex-display">$$\sigma_Z = \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix}$$</span>
+                </div>
+                
+                <p>Eigenvalues and eigenstates:</p>
+                <ul>
+                    <li><strong>+1</strong> for |0⟩ (low risk state)</li>
+                    <li><strong>-1</strong> for |1⟩ (high risk state)</li>
+                </ul>
+                
+                <p>The expectation value ⟨Z⟩ ∈ [-1, 1] is mapped to a probability:</p>
+                
+                <div class="math-block">
+                    <span class="katex-display">$$P(\text{Risk}) = \frac{\langle Z \rangle + 1}{2}$$</span>
+                </div>
+                
+                <pre><code class="language-python"># From app.py
+exp_val = circuit(weights, x)    # Raw quantum output: [-1, 1]
+risk_prob = (exp_val + 1) / 2    # Mapped to probability: [0, 1]</code></pre>
+            </section>
+            
+            <!-- Section 5: Training and Optimization -->
+            <section id="training" class="section">
+                <div class="section-header">
+                    <div class="section-number">5</div>
+                    <h2 class="section-title">Training and Optimization</h2>
+                </div>
+                
+                <h3>5.1 Cost Function</h3>
+                <p>The model minimizes Mean Squared Error between predictions and labels:</p>
+                
+                <div class="math-block">
+                    <span class="katex-display">$$\mathcal{L}(\theta) = \frac{1}{N} \sum_{i=1}^{N} \left( f_\theta(x_i) - y_i \right)^2$$</span>
+                </div>
+                
+                <p>Labels are mapped from {0, 1} to {-1, +1} to match the Pauli-Z eigenvalue range:</p>
+                
+                <pre><code class="language-python"># From train_vqc.py
+Y = df['Risk_Label'].values * 2 - 1  # {0, 1} → {-1, +1}
+
+def cost(weights, x_batch, y_batch):
+    preds = np.stack([circuit(weights, x) for x in x_batch])
+    return np.mean((preds - y_batch) ** 2)</code></pre>
+                
+                <h3>5.2 The Barren Plateau Problem</h3>
+                
+                <p>Variational Quantum Circuits suffer from <strong>barren plateaus</strong> — regions where gradients vanish exponentially with circuit depth and qubit count.</p>
+                
+                <div class="info-box warning-box">
+                    <div class="info-box-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Why Vanilla Gradient Descent Fails
+                    </div>
+                    <p>For random parameterized quantum circuits, the variance of the gradient scales as O(2<sup>-n</sup>) where n is the number of qubits. With 14 qubits, gradients become ~16,000× smaller than in shallow circuits, making training nearly impossible with standard SGD.</p>
+                </div>
+                
+                <h4>Solution: Adam Optimizer</h4>
+                <p>Adam combines momentum with adaptive learning rates, helping escape barren plateaus:</p>
+                
+                <pre><code class="language-python"># From train_vqc.py
+# Adam is better for escaping barren plateaus in VQCs
+opt = qml.AdamOptimizer(stepsize=LEARNING_RATE)  # LR = 0.05
+
+for i in range(STEPS):  # 100 steps
+    indices = np.random.randint(0, len(X_train), BATCH_SIZE)  # 32 samples
+    X_batch = X_train[indices]
+    Y_batch = Y_train[indices]
+    
+    weights, loss_val = opt.step_and_cost(
+        lambda w: cost(w, X_batch, Y_batch), 
+        weights
+    )</code></pre>
+                
+                <h3>5.3 Gradient Computation: Parameter-Shift Rule</h3>
+                
+                <p>PennyLane computes quantum gradients using the <strong>parameter-shift rule</strong>:</p>
+                
+                <div class="math-block">
+                    <span class="katex-display">$$\frac{\partial f}{\partial \theta} = \frac{f(\theta + \pi/2) - f(\theta - \pi/2)}{2}$$</span>
+                </div>
+                
+                <p>This requires <strong>2 circuit evaluations per parameter</strong>, so training with 84 parameters requires 168 circuit runs per gradient step.</p>
+                
+                <h3>5.4 Weight Persistence</h3>
+                
+                <p>Trained weights are saved to <code>quantum_weights.npy</code> and loaded at runtime:</p>
+                
+                <pre><code class="language-python"># Training: save weights
+np.save('backend/quantum_weights.npy', weights)
+
+# Inference: load weights with fallback paths
+WEIGHTS_PATHS = [
+    'quantum_weights.npy',
+    'backend/quantum_weights.npy', 
+    '/app/quantum_weights.npy',
+    '/app/backend/quantum_weights.npy'
+]
+
+def load_weights():
+    for weights_path in WEIGHTS_PATHS:
+        if os.path.exists(weights_path):
+            return np.load(weights_path)
+    # Fallback to random initialization
+    return np.random.random((LAYERS, QUBITS, 3))</code></pre>
+                
+                <h3>Training Configuration Summary</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Value</th>
+                                <th>Rationale</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Qubits</td>
+                                <td>14</td>
+                                <td>Matches 14 clinical features</td>
+                            </tr>
+                            <tr>
+                                <td>Layers</td>
+                                <td>2</td>
+                                <td>Deeper circuits increase barren plateau risk</td>
+                            </tr>
+                            <tr>
+                                <td>Parameters</td>
+                                <td>84</td>
+                                <td>2 × 14 × 3 Euler angles</td>
+                            </tr>
+                            <tr>
+                                <td>Optimizer</td>
+                                <td>Adam</td>
+                                <td>Momentum helps escape flat regions</td>
+                            </tr>
+                            <tr>
+                                <td>Learning Rate</td>
+                                <td>0.05</td>
+                                <td>Higher than classical due to barren plateaus</td>
+                            </tr>
+                            <tr>
+                                <td>Batch Size</td>
+                                <td>32</td>
+                                <td>Balances gradient noise and computation</td>
+                            </tr>
+                            <tr>
+                                <td>Steps</td>
+                                <td>100</td>
+                                <td>Sufficient for convergence on synthetic data</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Section 6: Risk Tier Classification -->
+            <section id="tiers" class="section">
+                <div class="section-header">
+                    <div class="section-number">6</div>
+                    <h2 class="section-title">Risk Tier Classification</h2>
+                </div>
+                
+                <p>The continuous risk probability is discretized into clinical tiers for actionable triage:</p>
+                
+                <pre><code class="language-python"># From app.py
+tier = "Low"
+if risk_prob > 0.4: tier = "Moderate"
+if risk_prob > 0.7: tier = "High"
+if risk_prob > 0.85: tier = "Crisis"</code></pre>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Probability Range</th>
+                                <th>Tier</th>
+                                <th>Recommended Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>0% – 40%</td>
+                                <td><span class="tier-low"><strong>Low</strong></span></td>
+                                <td>Self-help resources, wellness tips</td>
+                            </tr>
+                            <tr>
+                                <td>40% – 70%</td>
+                                <td><span class="tier-moderate"><strong>Moderate</strong></span></td>
+                                <td>Counselor check-in within 1 week</td>
+                            </tr>
+                            <tr>
+                                <td>70% – 85%</td>
+                                <td><span class="tier-high"><strong>High</strong></span></td>
+                                <td>Prioritized counselor appointment</td>
+                            </tr>
+                            <tr>
+                                <td>85% – 100%</td>
+                                <td><span class="tier-crisis"><strong>Crisis</strong></span></td>
+                                <td>Immediate intervention, crisis resources</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Section 7: Hume AI Voice Analysis -->
+            <section id="hume" class="section">
+                <div class="section-header">
+                    <div class="section-number">7</div>
+                    <h2 class="section-title">Hume AI Voice Analysis</h2>
+                </div>
+                
+                <p>Voice prosody analysis extracts emotional features from speech patterns using Hume AI's Empathic Voice Interface (EVI).</p>
+                
+                <h3>7.1 Audio Pipeline Architecture</h3>
+                
+                <div class="mermaid">
+flowchart LR
+    Mic[Microphone] --> MediaDevices[MediaDevices API]
+    MediaDevices --> AudioContext[AudioContext]
+    AudioContext --> ScriptProcessor[ScriptProcessor<br/>4096 samples]
+    ScriptProcessor --> PCM[Float32 → Int16 PCM]
+    PCM --> Base64[Base64 Encoding]
+    Base64 --> WebSocket[WebSocket Stream]
+    WebSocket --> HumeEVI[Hume EVI API]
+    HumeEVI --> Prosody[Prosody Scores]
+    Prosody --> Features["features[4], features[5]"]
+                </div>
+                
+                <h3>7.2 Audio Processing</h3>
+                
+                <pre><code class="language-javascript">// From HumeVoice.jsx
+const initAudio = async (ws) => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioContextRef.current = new AudioContext();
+    sourceRef.current = audioContextRef.current.createMediaStreamSource(stream);
+    processorRef.current = audioContextRef.current.createScriptProcessor(4096, 1, 1);
+    
+    processorRef.current.onaudioprocess = (e) => {
+        if (ws.readyState === WebSocket.OPEN) {
+            const inputData = e.inputBuffer.getChannelData(0);
+            
+            // Float32 → Int16 PCM conversion
+            const buffer = new ArrayBuffer(inputData.length * 2);
+            const view = new DataView(buffer);
+            for (let i = 0; i < inputData.length; i++) {
+                let s = Math.max(-1, Math.min(1, inputData[i]));
+                s = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                view.setInt16(i * 2, s, true);  // Little endian
+            }
+            
+            // Base64 encode and send
+            const base64Audio = btoa(
+                new Uint8Array(buffer)
+                    .reduce((data, byte) => data + String.fromCharCode(byte), '')
+            );
+            
+            ws.send(JSON.stringify({
+                type: "audio_input",
+                data: base64Audio
+            }));
+        }
+    };
+};</code></pre>
+                
+                <h3>7.3 Prosody Extraction</h3>
+                
+                <p>Hume EVI returns emotional scores in real-time. We extract two key dimensions:</p>
+                
+                <pre><code class="language-javascript">// From HumeVoice.jsx
+ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.models && data.models.prosody && data.models.prosody.scores) {
+        const scores = data.models.prosody.scores;
+        setProsodyScores({
+            anxiety: scores.Anxiety || 0.1,      // → feature[4]
+            isolation: scores.Sadness || 0.1    // → feature[5]
+        });
+    }
+};</code></pre>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Hume Score</th>
+                                <th>Feature Index</th>
+                                <th>Clinical Meaning</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>scores.Anxiety</code></td>
+                                <td>4</td>
+                                <td>Voice tremor, pitch variability, speech rate</td>
+                            </tr>
+                            <tr>
+                                <td><code>scores.Sadness</code></td>
+                                <td>5 (Isolation)</td>
+                                <td>Monotone, reduced pitch range, slow tempo</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h3>7.4 OAuth Token Proxy</h3>
+                
+                <p>The backend proxies Hume OAuth to avoid exposing API keys in the frontend:</p>
+                
+                <pre><code class="language-python"># From app.py
+@app.route('/hume/token', methods=['POST'])
+def hume_token():
+    token_url = "https://api.hume.ai/oauth2-cc/token"
+    auth = (HUME_API_KEY, HUME_SECRET_KEY)
+    data = {"grant_type": "client_credentials"}
+    
+    resp = requests.post(token_url, auth=auth, data=data)
+    if resp.status_code == 200:
+        return jsonify(resp.json())
+    else:
+        return jsonify({"error": "Failed to get token"}), resp.status_code</code></pre>
+            </section>
+            
+            <!-- Section 8: Together AI LLM Integration -->
+            <section id="together" class="section">
+                <div class="section-header">
+                    <div class="section-number">8</div>
+                    <h2 class="section-title">Together AI LLM Integration</h2>
+                </div>
+                
+                <p>Natural language transcripts are analyzed using Llama 3.1 to extract structured health ratings.</p>
+                
+                <h3>8.1 Model Configuration</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Model</td>
+                                <td><code>meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo</code></td>
+                            </tr>
+                            <tr>
+                                <td>Max Tokens</td>
+                                <td>200</td>
+                            </tr>
+                            <tr>
+                                <td>Temperature</td>
+                                <td>0.7</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h3>8.2 Prompt Engineering</h3>
+                
+                <pre><code class="language-python"># From app.py
+prompt = f"""
+Analyze the following user transcript about their mental health.
+Extract numerical ratings (1-10) for the following categories based on the text.
+
+CRITICAL INSTRUCTION: If the user explicitly states a rating 
+(e.g., "I rate my sleep a 2", "Anxiety is 10/10"), you MUST use that exact number.
+If not explicitly mentioned, infer a likely value based on sentiment.
+If no information is present for a category, use 5 (neutral).
+
+Categories:
+- Sleep Quality (1=Poor, 10=Excellent)
+- Anxiety Level (1=Low, 10=High)
+- Academic Pressure (1=Low, 10=High)
+- Diet Quality (1=Poor, 10=Excellent)
+- Social Activity (1=Low, 10=High)
+
+Transcript: "{transcript}"
+
+Return the result as a VALID JSON object with keys: "sleep", "anxiety", "academic", "diet", "social".
+Do not explain. Return ONLY the JSON.
+"""</code></pre>
+                
+                <h3>8.3 Response Parsing</h3>
+                
+                <pre><code class="language-python"># From app.py
+content = response.choices[0].message.content.strip()
+
+# Handle markdown code blocks
+if "```json" in content:
+    content = content.split("```json")[1].split("```")[0].strip()
+elif "{" in content:
+    start = content.find("{")
+    end = content.rfind("}") + 1
+    content = content[start:end]
+
+ratings = json.loads(content)
+
+# Merge with explicit manual ratings if provided
+manual_ratings = data.get('manual_ratings', {})
+if manual_ratings:
+    for key, val in manual_ratings.items():
+        if val is not None:
+            ratings[key] = val</code></pre>
+                
+                <h3>8.4 Fallback Handling</h3>
+                
+                <pre><code class="language-python"># From app.py
+except Exception as e:
+    print(f"Error calling Together API: {e}")
+    return jsonify({
+        "error": str(e),
+        "fallback": {
+            "sleep": 5, "anxiety": 5, "academic": 5, "diet": 5, "social": 5
+        }
+    }), 500</code></pre>
+            </section>
+            
+            <!-- Section 9: JWT Authentication -->
+            <section id="auth" class="section">
+                <div class="section-header">
+                    <div class="section-number">9</div>
+                    <h2 class="section-title">JWT Authentication Flow</h2>
+                </div>
+                
+                <h3>9.1 Configuration</h3>
+                
+                <pre><code class="language-python"># From app.py
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'super-secret-key-change-this')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+jwt = JWTManager(app)</code></pre>
+                
+                <h3>9.2 Login Endpoint</h3>
+                
+                <pre><code class="language-python"># From app.py
+ADMIN_USER = "admin"
+ADMIN_PASS = "password"
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.json.get('username', None)
+    password = request.json.get('password', None)
+    
+    if username == ADMIN_USER and password == ADMIN_PASS:
+        access_token = create_access_token(identity=username)
+        return jsonify(access_token=access_token), 200
+    else:
+        return jsonify({"msg": "Bad username or password"}), 401</code></pre>
+                
+                <h3>9.3 Protected Routes</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Endpoint</th>
+                                <th>Method</th>
+                                <th>Protected</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/login</code></td>
+                                <td>POST</td>
+                                <td>No</td>
+                                <td>Issue JWT token</td>
+                            </tr>
+                            <tr>
+                                <td><code>/health</code></td>
+                                <td>GET</td>
+                                <td>No</td>
+                                <td>Health check for Cloud Run</td>
+                            </tr>
+                            <tr>
+                                <td><code>/predict</code></td>
+                                <td>POST</td>
+                                <td><strong>Yes</strong></td>
+                                <td>Quantum inference</td>
+                            </tr>
+                            <tr>
+                                <td><code>/analyze_transcript</code></td>
+                                <td>POST</td>
+                                <td><strong>Yes</strong></td>
+                                <td>LLM analysis</td>
+                            </tr>
+                            <tr>
+                                <td><code>/hume/token</code></td>
+                                <td>POST</td>
+                                <td>No</td>
+                                <td>Hume OAuth proxy</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h3>9.4 Frontend Token Handling</h3>
+                
+                <pre><code class="language-javascript">// From App.jsx
+const handleLogin = async (e) => {
+    const response = await axios.post(
+        'https://quantum-backend-738298079218.us-central1.run.app/login',
+        { username, password }
+    );
+    const access_token = response.data.access_token;
+    setToken(access_token);
+    localStorage.setItem('token', access_token);
+};
+
+// Protected API call
+const response = await axios.post(
+    'https://quantum-backend-738298079218.us-central1.run.app/predict',
+    { features: vector },
+    { headers: { Authorization: `Bearer ${token}` } }
+);</code></pre>
+            </section>
+            
+            <!-- Section 10: Cloud Run Deployment -->
+            <section id="deploy" class="section">
+                <div class="section-header">
+                    <div class="section-number">10</div>
+                    <h2 class="section-title">Cloud Run Deployment</h2>
+                </div>
+                
+                <h3>10.1 Backend Dockerfile</h3>
+                
+                <pre><code class="language-dockerfile"># backend/Dockerfile
+FROM python:3.10-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Gunicorn configuration for quantum workloads
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", \
+     "--workers", "1",    \
+     "--threads", "8",    \
+     "--timeout", "0",    \
+     "app:app"]</code></pre>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Gunicorn Setting</th>
+                                <th>Value</th>
+                                <th>Rationale</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>--workers</code></td>
+                                <td>1</td>
+                                <td>Quantum simulation is memory-intensive</td>
+                            </tr>
+                            <tr>
+                                <td><code>--threads</code></td>
+                                <td>8</td>
+                                <td>Handle concurrent requests without extra memory</td>
+                            </tr>
+                            <tr>
+                                <td><code>--timeout</code></td>
+                                <td>0</td>
+                                <td>Disable timeout (quantum circuits can be slow)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h3>10.2 Frontend Dockerfile</h3>
+                
+                <pre><code class="language-dockerfile"># frontend/Dockerfile
+# Build Stage
+FROM node:20-slim as build
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Serve Stage
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# SPA routing configuration
+RUN echo 'server { \
+    listen 8080; \
+    server_name localhost; \
+    location / { \
+        root /usr/share/nginx/html; \
+        index index.html index.htm; \
+        try_files $uri $uri/ /index.html; \
+    } \
+}' > /etc/nginx/conf.d/default.conf
+
+EXPOSE 8080
+CMD ["nginx", "-g", "daemon off;"]</code></pre>
+                
+                <h3>10.3 Cloud Run Configuration</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Memory</th>
+                                <th>CPU</th>
+                                <th>Port</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>quantum-backend</td>
+                                <td>4Gi</td>
+                                <td>2</td>
+                                <td>8080</td>
+                            </tr>
+                            <tr>
+                                <td>quantum-frontend</td>
+                                <td>256Mi</td>
+                                <td>1</td>
+                                <td>8080</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h3>10.4 CORS Configuration</h3>
+                
+                <pre><code class="language-python"># From app.py
+CORS(app, 
+     resources={r"/*": {
+         "origins": "*",
+         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
+         "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
+         "expose_headers": ["Content-Type", "Authorization"],
+         "supports_credentials": False,
+         "max_age": 3600
+     }},
+     automatic_options=True)
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 
+                        'Content-Type,Authorization,X-Requested-With')
+    response.headers.add('Access-Control-Allow-Methods', 
+                        'GET,PUT,POST,DELETE,OPTIONS,HEAD')
+    response.headers.add('Access-Control-Max-Age', '3600')
+    return response</code></pre>
+                
+                <h3>10.5 Deployment Commands</h3>
+                
+                <pre><code class="language-bash"># Build and deploy backend
+gcloud builds submit --tag gcr.io/PROJECT_ID/quantum-backend ./backend
+gcloud run deploy quantum-backend \
+    --image gcr.io/PROJECT_ID/quantum-backend \
+    --platform managed \
+    --region us-central1 \
+    --allow-unauthenticated \
+    --port 8080 \
+    --memory 4Gi \
+    --cpu 2
+
+# Build and deploy frontend
+gcloud builds submit --tag gcr.io/PROJECT_ID/quantum-frontend ./frontend
+gcloud run deploy quantum-frontend \
+    --image gcr.io/PROJECT_ID/quantum-frontend \
+    --platform managed \
+    --region us-central1 \
+    --allow-unauthenticated \
+    --port 8080</code></pre>
+            </section>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer style="background: var(--slate-800); color: var(--slate-300); padding: 32px 0; text-align: center; font-size: 14px;">
+        <div class="container">
+            <p>Quantum Mind Technical Documentation</p>
+            <p style="color: var(--slate-500); margin-top: 8px;">Built with PennyLane, Flask, React, and Hume AI</p>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script>
+        // Initialize Mermaid synchronously
+        document.addEventListener('DOMContentLoaded', function() {
+            mermaid.initialize({
+                startOnLoad: true,
+                theme: 'neutral',
+                securityLevel: 'loose',
+                flowchart: {
+                    useMaxWidth: true,
+                    htmlLabels: true,
+                    curve: 'basis'
+                }
+            });
+            
+            // Render KaTeX
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\[', right: '\\]', display: true},
+                        {left: '\\(', right: '\\)', display: false}
+                    ],
+                    throwOnError: false
+                });
+            }
+            
+            // Initialize interactive components
+            initQubitSimulator();
+            initCNOTSimulator();
+        });
+        
+        // Qubit Rotation Simulator
+        function initQubitSimulator() {
+            const slider = document.getElementById('qubit-slider');
+            const canvas = document.getElementById('qubit-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            function updateQubit() {
+                const x = slider.value / 100;
+                const theta = x * Math.PI;
+                const p0 = Math.pow(Math.cos(theta / 2), 2);
+                const p1 = Math.pow(Math.sin(theta / 2), 2);
+                const z = p0 - p1;
+                
+                // Update values
+                document.getElementById('qubit-x-value').textContent = x.toFixed(2);
+                document.getElementById('qubit-theta').textContent = theta.toFixed(3) + ' rad';
+                document.getElementById('qubit-p0').textContent = p0.toFixed(3);
+                document.getElementById('qubit-p1').textContent = p1.toFixed(3);
+                document.getElementById('qubit-z').textContent = z.toFixed(3);
+                
+                // Draw gauge
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height - 30;
+                const radius = 80;
+                
+                // Draw arc background
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, Math.PI, 0, false);
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 12;
+                ctx.stroke();
+                
+                // Draw colored sections
+                // Green (|0⟩, low risk)
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, Math.PI, Math.PI * 1.3, false);
+                ctx.strokeStyle = '#10b981';
+                ctx.stroke();
+                
+                // Blue (middle)
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, Math.PI * 1.3, Math.PI * 1.7, false);
+                ctx.strokeStyle = '#3b82f6';
+                ctx.stroke();
+                
+                // Red (|1⟩, high risk)
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, Math.PI * 1.7, 0, false);
+                ctx.strokeStyle = '#ef4444';
+                ctx.stroke();
+                
+                // Draw needle
+                const needleAngle = Math.PI - theta; // Map theta to needle position
+                const needleLength = radius - 15;
+                const needleX = centerX + needleLength * Math.cos(needleAngle);
+                const needleY = centerY - needleLength * Math.sin(needleAngle);
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(needleX, needleY);
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // Draw center dot
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 6, 0, 2 * Math.PI);
+                ctx.fillStyle = '#1e293b';
+                ctx.fill();
+                
+                // Labels
+                ctx.font = '12px IBM Plex Mono';
+                ctx.fillStyle = '#64748b';
+                ctx.textAlign = 'center';
+                ctx.fillText('|0⟩', centerX - radius - 15, centerY);
+                ctx.fillText('|1⟩', centerX + radius + 15, centerY);
+                ctx.fillText('x = ' + x.toFixed(2), centerX, 20);
+            }
+            
+            slider.addEventListener('input', updateQubit);
+            updateQubit();
+        }
+        
+        // CNOT Gate Simulator
+        function initCNOTSimulator() {
+            const controlBtn = document.getElementById('cnot-control');
+            const targetBtn = document.getElementById('cnot-target');
+            const outputBtn = document.getElementById('cnot-output');
+            const truthTable = document.getElementById('cnot-truth-table');
+            
+            let control = 0;
+            let target = 0;
+            
+            function updateCNOT() {
+                const output = target ^ control; // XOR operation
+                
+                // Update buttons
+                controlBtn.textContent = control;
+                targetBtn.textContent = target;
+                outputBtn.textContent = output;
+                
+                controlBtn.classList.toggle('active', control === 1);
+                targetBtn.classList.toggle('active', target === 1);
+                outputBtn.classList.toggle('active', output === 1);
+                
+                // Highlight truth table row
+                const rows = truthTable.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const rowControl = parseInt(row.dataset.control);
+                    const rowTarget = parseInt(row.dataset.target);
+                    if (rowControl === control && rowTarget === target) {
+                        row.classList.add('highlight');
+                    } else {
+                        row.classList.remove('highlight');
+                    }
+                });
+            }
+            
+            controlBtn.addEventListener('click', () => {
+                control = control === 0 ? 1 : 0;
+                updateCNOT();
+            });
+            
+            targetBtn.addEventListener('click', () => {
+                target = target === 0 ? 1 : 0;
+                updateCNOT();
+            });
+            
+            updateCNOT();
+        }
+    </script>
+</body>
+</html>
+

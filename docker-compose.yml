@@ -1,0 +1,28 @@
+services:
+  backend:
+    build: ./backend
+    container_name: quantum-backend
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - FLASK_ENV=development
+      - HUME_API_KEY=${HUME_API_KEY}
+      - HUME_SECRET_KEY=${HUME_SECRET_KEY}
+
+  frontend:
+    build: ./frontend
+    container_name: quantum-frontend
+    ports:
+      - "5173:8080"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:5001
+    depends_on:
+      - backend
+
+volumes:
+  backend_data:

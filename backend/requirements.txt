@@ -1,0 +1,11 @@
+pennylane>=0.41.0
+autoray>=0.6.11
+flask
+flask_cors
+pandas
+numpy
+scikit-learn
+torch
+together
+flask-jwt-extended
+gunicorn
