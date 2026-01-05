@@ -54,6 +54,7 @@ logs/
 # *.csv
 # *.npy
 # *.pkl
+NSDUH_2024_Tab.txt
 
 # Cloud Build
 .gcloudignore
