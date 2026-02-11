@@ -62,7 +62,7 @@ def login():
 
 # CONFIG
 QUBITS = 14
-LAYERS = 2
+LAYERS = int(os.environ.get("QM_LAYERS", "3"))
 # Try multiple possible paths for weights file
 WEIGHTS_PATHS = ['quantum_weights.npy', 'backend/quantum_weights.npy', '/app/quantum_weights.npy', '/app/backend/quantum_weights.npy']
 HUME_API_KEY = os.environ.get('HUME_API_KEY')
@@ -94,6 +94,40 @@ def load_weights():
 # Global Weights
 weights = load_weights()
 
+# Feature metadata for holistic reporting
+FEATURE_METADATA = [
+    {"index": 0, "name": "Cognitive Connectivity", "category": "Neurocognitive", "description": "Focus and attention capacity measured through cognitive tasks", "source": "game"},
+    {"index": 1, "name": "Memory Function", "category": "Neurocognitive", "description": "Hippocampal-dependent memory performance", "source": "game"},
+    {"index": 2, "name": "Sleep Quality", "category": "Lifestyle", "description": "Sleep duration and quality patterns", "source": "survey"},
+    {"index": 3, "name": "Developmental Stage", "category": "Demographic", "description": "Age-normalized pubertal/developmental stage", "source": "estimated"},
+    {"index": 4, "name": "Anxiety Level", "category": "Emotional", "description": "Anxiety symptoms detected through voice prosody analysis", "source": "biometric"},
+    {"index": 5, "name": "Social Isolation", "category": "Emotional", "description": "Social withdrawal indicators from voice analysis", "source": "biometric"},
+    {"index": 6, "name": "Substance Risk", "category": "Behavioral", "description": "Risk factors for substance use", "source": "survey"},
+    {"index": 7, "name": "Diet Quality", "category": "Lifestyle", "description": "Nutritional habits and dietary patterns", "source": "survey"},
+    {"index": 8, "name": "Academic Pressure", "category": "Environmental", "description": "Perceived academic stress and workload", "source": "survey"},
+    {"index": 9, "name": "Family History", "category": "Genetic", "description": "Family history of mental health conditions", "source": "estimated"},
+    {"index": 10, "name": "Bullying Exposure", "category": "Environmental", "description": "Exposure to bullying or peer victimization", "source": "estimated"},
+    {"index": 11, "name": "Safety Perception", "category": "Environmental", "description": "Perceived safety in environment", "source": "estimated"},
+    {"index": 12, "name": "Social Monitoring", "category": "Environmental", "description": "Level of social support and monitoring", "source": "estimated"},
+    {"index": 13, "name": "Physical Activity", "category": "Lifestyle", "description": "Exercise and physical activity levels", "source": "estimated"},
+]
+
+def convert_to_rating(value):
+    """Convert 0-1 normalized value to 1-5 rating scale"""
+    # Map 0-1 to 1-5: 0->1, 0.25->2, 0.5->3, 0.75->4, 1->5
+    return max(1, min(5, round(value * 4 + 1)))
+
+def get_severity_level(risk_prob, depression_prob):
+    """Determine severity level based on risk and depression probabilities"""
+    if risk_prob >= 0.85 or depression_prob >= 0.8:
+        return {"level": "Critical", "color": "red", "recommendation": "Immediate professional intervention recommended"}
+    elif risk_prob >= 0.7 or depression_prob >= 0.6:
+        return {"level": "Severe", "color": "orange", "recommendation": "Professional evaluation strongly recommended"}
+    elif risk_prob >= 0.4 or depression_prob >= 0.4:
+        return {"level": "Moderate", "color": "yellow", "recommendation": "Monitor closely and consider professional support"}
+    else:
+        return {"level": "Mild", "color": "green", "recommendation": "Continue monitoring and maintain healthy habits"}
+
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({"status": "healthy", "quantum_backend": "online"})
@@ -103,7 +137,11 @@ def health():
 def predict():
     """
     Expects JSON: { "features": [0.1, 0.5, ... 14 items] }
-    Returns: { "risk_score": 0.85, "support_tier": "Crisis" }
+    Returns comprehensive holistic prediction including:
+    - Risk probability and tier
+    - Depression probability
+    - Severity assessment
+    - Detailed feature breakdown with 1-5 ratings
     """
     data = request.json
     if not data or 'features' not in data:
@@ -124,16 +162,84 @@ def predict():
     # P(Risk) = (Z + 1) / 2
     risk_prob = (exp_val + 1) / 2
     
-    # Tiers
+    # Calculate depression probability
+    # Since model was trained on depression data, use risk as base
+    # Adjust based on anxiety and isolation (key depression indicators)
+    anxiety_weight = features[4]  # Index 4: Anxiety
+    isolation_weight = features[5]  # Index 5: Isolation
+    depression_prob = risk_prob * 0.7 + (anxiety_weight * 0.15) + (isolation_weight * 0.15)
+    depression_prob = min(1.0, max(0.0, depression_prob))
+    
+    # Risk Tiers
     tier = "Low"
     if risk_prob > 0.4: tier = "Moderate"
     if risk_prob > 0.7: tier = "High"
     if risk_prob > 0.85: tier = "Crisis"
+    
+    # Severity Assessment
+    severity = get_severity_level(risk_prob, depression_prob)
+    
+    # Build detailed feature report
+    feature_report = []
+    for meta in FEATURE_METADATA:
+        idx = meta["index"]
+        value = float(features[idx])
+        rating = convert_to_rating(value)
+        
+        # Determine status
+        if meta["source"] == "estimated":
+            status = "estimated"
+            status_text = "Estimated (not directly measured)"
+        else:
+            status = "measured"
+            status_text = f"Measured via {meta['source']}"
+        
+        # Determine health indicator
+        if meta["category"] in ["Emotional", "Behavioral"]:
+            # For emotional/behavioral: lower is better
+            health_indicator = "good" if value < 0.3 else ("moderate" if value < 0.6 else "concerning")
+        else:
+            # For lifestyle/neurocognitive: higher is generally better
+            health_indicator = "good" if value > 0.7 else ("moderate" if value > 0.4 else "concerning")
+        
+        feature_report.append({
+            "index": idx,
+            "name": meta["name"],
+            "category": meta["category"],
+            "description": meta["description"],
+            "value": value,
+            "rating": rating,
+            "status": status,
+            "status_text": status_text,
+            "health_indicator": health_indicator,
+            "source": meta["source"]
+        })
 
     return jsonify({
+        # Core predictions
         "risk_probability": float(risk_prob),
+        "risk_percentage": float(risk_prob * 100),
         "risk_tier": tier,
-        "quantum_raw": float(exp_val)
+        "depression_probability": float(depression_prob),
+        "depression_percentage": float(depression_prob * 100),
+        
+        # Severity assessment
+        "severity": severity,
+        
+        # Technical details
+        "quantum_raw": float(exp_val),
+        
+        # Comprehensive feature breakdown
+        "feature_report": feature_report,
+        
+        # Summary statistics
+        "summary": {
+            "total_features": 14,
+            "measured_features": len([f for f in feature_report if f["status"] == "measured"]),
+            "estimated_features": len([f for f in feature_report if f["status"] == "estimated"]),
+            "average_rating": float(sum([f["rating"] for f in feature_report]) / len(feature_report)),
+            "concerning_features": len([f for f in feature_report if f["health_indicator"] == "concerning"])
+        }
     })
 
 @app.route('/hume/token', methods=['POST'])
