@@ -13,15 +13,13 @@ services:
       - TOGETHER_API_KEY=${TOGETHER_API_KEY}
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:5001
     container_name: quantum-frontend
     ports:
       - "5173:8080"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    environment:
-      - VITE_API_URL=http://localhost:5001
     depends_on:
       - backend
 

@@ -62,7 +62,7 @@ def login():
 
 # CONFIG
 QUBITS = 14
-LAYERS = int(os.environ.get("QM_LAYERS", "3"))
+LAYERS = int(os.environ.get("QM_LAYERS", "5"))
 # Try multiple possible paths for weights file
 WEIGHTS_PATHS = ['quantum_weights.npy', 'backend/quantum_weights.npy', '/app/quantum_weights.npy', '/app/backend/quantum_weights.npy']
 HUME_API_KEY = os.environ.get('HUME_API_KEY')
@@ -118,15 +118,17 @@ def convert_to_rating(value):
     return max(1, min(5, round(value * 4 + 1)))
 
 def get_severity_level(risk_prob, depression_prob):
-    """Determine severity level based on risk and depression probabilities"""
-    if risk_prob >= 0.85 or depression_prob >= 0.8:
-        return {"level": "Critical", "color": "red", "recommendation": "Immediate professional intervention recommended"}
-    elif risk_prob >= 0.7 or depression_prob >= 0.6:
-        return {"level": "Severe", "color": "orange", "recommendation": "Professional evaluation strongly recommended"}
-    elif risk_prob >= 0.4 or depression_prob >= 0.4:
-        return {"level": "Moderate", "color": "yellow", "recommendation": "Monitor closely and consider professional support"}
+    combined = float(risk_prob) * 0.6 + float(depression_prob) * 0.4
+    if combined >= 0.80:
+        return {"level": "Critical", "color": "red", "recommendation": "Immediate professional intervention recommended. Contact school counselor or crisis line."}
+    elif combined >= 0.65:
+        return {"level": "Severe", "color": "orange", "recommendation": "Professional evaluation strongly recommended within 1-2 weeks."}
+    elif combined >= 0.45:
+        return {"level": "Moderate", "color": "yellow", "recommendation": "Monitor closely. Consider scheduling a check-in with school counselor."}
+    elif combined >= 0.25:
+        return {"level": "Mild", "color": "green", "recommendation": "Continue monitoring. Encourage healthy habits and open communication."}
     else:
-        return {"level": "Mild", "color": "green", "recommendation": "Continue monitoring and maintain healthy habits"}
+        return {"level": "Minimal", "color": "green", "recommendation": "No immediate concerns. Continue regular wellness check-ins."}
 
 @app.route('/health', methods=['GET'])
 def health():
@@ -167,9 +169,42 @@ def predict():
     # Adjust based on anxiety and isolation (key depression indicators)
     anxiety_weight = features[4]  # Index 4: Anxiety
     isolation_weight = features[5]  # Index 5: Isolation
-    depression_prob = risk_prob * 0.7 + (anxiety_weight * 0.15) + (isolation_weight * 0.15)
-    depression_prob = min(1.0, max(0.0, depression_prob))
+    # Multi-factor depression probability using all features
+    sleep_factor = 1.0 - float(features[2])       # Poor sleep increases risk
+    substance_factor = float(features[6])           # Higher substance risk
+    academic_factor = float(features[8])            # Higher academic pressure
+    family_factor = float(features[9])              # Family history
+    bullying_factor = float(features[10])           # Bullying exposure
+    safety_factor = 1.0 - float(features[11])      # Lower safety increases risk
+    social_factor = 1.0 - float(features[12])       # Less monitoring increases risk
+    physical_factor = 1.0 - float(features[13])     # Less activity increases risk
+
+    depression_prob = (
+        float(risk_prob) * 0.30 +
+        float(anxiety_weight) * 0.15 +
+        float(isolation_weight) * 0.10 +
+        sleep_factor * 0.10 +
+        academic_factor * 0.08 +
+        family_factor * 0.07 +
+        bullying_factor * 0.06 +
+        substance_factor * 0.05 +
+        safety_factor * 0.03 +
+        social_factor * 0.03 +
+        physical_factor * 0.03
+    )
+    depression_prob = min(1.0, max(0.0, float(depression_prob)))
     
+    # Detect default-heavy inputs for confidence reporting
+    default_count = sum(1 for f in features if abs(float(f) - 0.5) < 0.05)
+    feature_variance = float(np.var(x))
+
+    if default_count >= 8:
+        confidence = {"level": "low", "note": f"{default_count} of 14 features at default values. Results may not be fully personalized.", "default_features": default_count, "feature_variance": feature_variance}
+    elif default_count >= 5:
+        confidence = {"level": "moderate", "note": f"{default_count} of 14 features at default values.", "default_features": default_count, "feature_variance": feature_variance}
+    else:
+        confidence = {"level": "high", "note": "All major features have measured or observed values.", "default_features": default_count, "feature_variance": feature_variance}
+
     # Risk Tiers
     tier = "Low"
     if risk_prob > 0.4: tier = "Moderate"
@@ -188,8 +223,12 @@ def predict():
         
         # Determine status
         if meta["source"] == "estimated":
-            status = "estimated"
-            status_text = "Estimated (not directly measured)"
+            if abs(value - 0.5) < 0.01:
+                status = "estimated"
+                status_text = "Estimated (default - not directly assessed)"
+            else:
+                status = "proctor"
+                status_text = "Assessed by clinical proctor"
         else:
             status = "measured"
             status_text = f"Measured via {meta['source']}"
@@ -225,6 +264,9 @@ def predict():
         
         # Severity assessment
         "severity": severity,
+
+        # Confidence assessment
+        "confidence": confidence,
         
         # Technical details
         "quantum_raw": float(exp_val),
@@ -235,7 +277,7 @@ def predict():
         # Summary statistics
         "summary": {
             "total_features": 14,
-            "measured_features": len([f for f in feature_report if f["status"] == "measured"]),
+            "measured_features": len([f for f in feature_report if f["status"] in ("measured", "proctor")]),
             "estimated_features": len([f for f in feature_report if f["status"] == "estimated"]),
             "average_rating": float(sum([f["rating"] for f in feature_report]) / len(feature_report)),
             "concerning_features": len([f for f in feature_report if f["health_indicator"] == "concerning"])

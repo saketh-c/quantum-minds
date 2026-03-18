@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Play, AlertTriangle, Shield } from 'lucide-react';
+import { Play, Shield } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
-const GRID_SIZE = 3; // 3x3 keypad
+const GRID_SIZE = 3;
 const MAX_LEVEL = 5;
 
 export default function ReactorSabotage({ onComplete }) {
@@ -12,24 +15,19 @@ export default function ReactorSabotage({ onComplete }) {
     const [maxRecalled, setMaxRecalled] = useState(0);
     const [distractors, setDistractors] = useState([]);
     const [timeLeft, setTimeLeft] = useState(0);
-    
+
     const timerRef = useRef(null);
     const distractorIntervalRef = useRef(null);
 
     useEffect(() => {
-        if (gameState === 'showing') {
-            runSequence();
-        }
+        if (gameState === 'showing') runSequence();
     }, [gameState, level]);
 
     useEffect(() => {
         if (gameState === 'input' && timeLeft > 0) {
             timerRef.current = setInterval(() => {
                 setTimeLeft(prev => {
-                    if (prev <= 1) {
-                        handleTimeout();
-                        return 0;
-                    }
+                    if (prev <= 1) { handleTimeout(); return 0; }
                     return prev - 1;
                 });
             }, 1000);
@@ -39,10 +37,7 @@ export default function ReactorSabotage({ onComplete }) {
 
     useEffect(() => {
         if (gameState === 'input') {
-            // Spawn distractors during input phase
-            distractorIntervalRef.current = setInterval(() => {
-                spawnDistractor();
-            }, 2000);
+            distractorIntervalRef.current = setInterval(() => spawnDistractor(), 2000);
             return () => clearInterval(distractorIntervalRef.current);
         } else {
             setDistractors([]);
@@ -50,7 +45,7 @@ export default function ReactorSabotage({ onComplete }) {
     }, [gameState]);
 
     const runSequence = () => {
-        const count = level + 2; // Level 1 = 3 tiles, Level 2 = 4 tiles, etc.
+        const count = level + 2;
         const newPattern = [];
         while (newPattern.length < count) {
             const idx = Math.floor(Math.random() * (GRID_SIZE * GRID_SIZE));
@@ -58,29 +53,16 @@ export default function ReactorSabotage({ onComplete }) {
         }
         setSequence(newPattern);
         setUserSequence([]);
-        setTimeLeft(5 + level); // More time for higher levels
-        
-        // Show pattern
-        setTimeout(() => {
-            setGameState('input');
-        }, 1000 + (level * 200));
+        setTimeLeft(5 + level);
+        setTimeout(() => setGameState('input'), 1000 + (level * 200));
     };
 
     const spawnDistractor = () => {
         const positions = ['top', 'bottom', 'left', 'right'];
         const position = positions[Math.floor(Math.random() * positions.length)];
         const type = Math.random() > 0.5 ? 'glitch' : 'impostor';
-        
-        const distractor = {
-            id: Date.now(),
-            position,
-            type,
-            created: Date.now()
-        };
-        
+        const distractor = { id: Date.now(), position, type };
         setDistractors(prev => [...prev, distractor]);
-        
-        // Remove after animation
         setTimeout(() => {
             setDistractors(prev => prev.filter(d => d.id !== distractor.id));
         }, 1500);
@@ -88,24 +70,17 @@ export default function ReactorSabotage({ onComplete }) {
 
     const handleTileClick = (idx) => {
         if (gameState !== 'input') return;
-
         if (userSequence.includes(idx)) {
             setUserSequence(prev => prev.filter(i => i !== idx));
-        } else {
-            if (userSequence.length < sequence.length) {
-                setUserSequence(prev => [...prev, idx]);
-            }
+        } else if (userSequence.length < sequence.length) {
+            setUserSequence(prev => [...prev, idx]);
         }
     };
 
-    const handleTimeout = () => {
-        finishGame(maxRecalled);
-    };
+    const handleTimeout = () => finishGame(maxRecalled);
 
     const submitPattern = () => {
-        const isCorrect = sequence.every(i => userSequence.includes(i)) && 
-                         userSequence.length === sequence.length;
-
+        const isCorrect = sequence.every(i => userSequence.includes(i)) && userSequence.length === sequence.length;
         if (isCorrect) {
             setMaxRecalled(level);
             if (level < MAX_LEVEL) {
@@ -127,72 +102,61 @@ export default function ReactorSabotage({ onComplete }) {
 
     if (gameState === 'intro') {
         return (
-            <div className="fixed inset-0 bg-gradient-to-b from-red-950 via-slate-900 to-slate-950 z-50 flex items-center justify-center p-4">
-                <div className="bg-slate-900/95 backdrop-blur-md p-8 rounded-2xl border border-red-500/30 max-w-md w-full">
-                    <div className="flex items-center gap-3 mb-4">
-                        <AlertTriangle className="text-red-500" size={32} />
-                        <h2 className="text-3xl font-bold text-red-400">REACTOR SABOTAGE</h2>
+            <Card className="max-w-md mx-auto">
+                <CardHeader className="text-center">
+                    <div className="flex justify-center mb-2">
+                        <Shield className="w-8 h-8 text-primary" />
                     </div>
-                    <p className="text-lg text-slate-300 mb-6 font-mono">Hippocampal Calibration</p>
-                    
-                    <div className="space-y-4 mb-6">
-                        <div className="flex gap-3 items-start">
-                            <Shield className="text-yellow-400 mt-1 flex-shrink-0" size={20} />
-                            <p className="text-slate-300 text-sm">A security keypad pattern will flash on screen.</p>
-                        </div>
-                        <div className="flex gap-3 items-start">
-                            <Shield className="text-yellow-400 mt-1 flex-shrink-0" size={20} />
-                            <p className="text-slate-300 text-sm">Memorize the pattern and recreate it exactly.</p>
-                        </div>
-                        <div className="flex gap-3 items-start">
-                            <Shield className="text-yellow-400 mt-1 flex-shrink-0" size={20} />
-                            <p className="text-slate-300 text-sm"><span className="text-red-400 font-bold">WARNING:</span> Ignore glitches and impostors!</p>
-                        </div>
-                    </div>
-                    
-                    <button
-                        onClick={() => setGameState('showing')}
-                        className="w-full px-8 py-4 bg-red-600 hover:bg-red-500 rounded-full font-bold text-lg shadow-[0_0_20px_#ef4444] transition-all transform hover:scale-105 flex items-center justify-center gap-2"
-                    >
-                        <Play size={20} /> INITIATE REPAIR
-                    </button>
-                </div>
-            </div>
+                    <CardTitle className="text-2xl font-display">Memory Assessment</CardTitle>
+                    <CardDescription>Spatial pattern recall calibration</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <ul className="text-sm text-muted-foreground space-y-2">
+                        <li>A pattern will flash on a 3x3 grid</li>
+                        <li>Memorize and recreate the pattern exactly</li>
+                        <li>Difficulty increases with each level (up to 5)</li>
+                        <li>Ignore distractors that appear during input</li>
+                    </ul>
+
+                    <Button onClick={() => setGameState('showing')} className="w-full" size="lg">
+                        <Play className="w-5 h-5 mr-2" />
+                        Start Assessment
+                    </Button>
+                </CardContent>
+            </Card>
         );
     }
 
     if (gameState === 'done') {
         return (
-            <div className="fixed inset-0 bg-gradient-to-b from-green-950 via-slate-900 to-slate-950 z-50 flex items-center justify-center p-4">
-                <div className="bg-slate-900/95 backdrop-blur-md p-8 rounded-2xl border border-green-500/30 max-w-md w-full text-center">
-                    <h1 className="text-4xl font-bold text-green-400 mb-4">REACTOR STABILIZED</h1>
-                    <p className="text-slate-300 mb-6">Memory Calibration Complete</p>
-                    <div className="text-2xl font-mono text-cyan-400 mb-6">
-                        Level Reached: {maxRecalled}
+            <Card className="max-w-md mx-auto">
+                <CardHeader className="text-center">
+                    <CardTitle className="font-display">Memory Assessment Complete</CardTitle>
+                    <CardDescription>Your spatial recall results</CardDescription>
+                </CardHeader>
+                <CardContent className="text-center space-y-4">
+                    <div className="p-6 rounded-lg bg-muted/50">
+                        <p className="text-xs text-muted-foreground mb-1">Highest Level Reached</p>
+                        <p className="text-4xl font-bold text-primary">{maxRecalled}</p>
+                        <p className="text-sm text-muted-foreground mt-1">out of {MAX_LEVEL}</p>
                     </div>
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="px-6 py-2 border border-white/20 hover:bg-white/10 rounded-lg"
-                    >
-                        RECALIBRATE
-                    </button>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         );
     }
 
+    // Playing state — contained within page flow
     return (
-        <div className="fixed inset-0 bg-gradient-to-b from-red-950 via-slate-900 to-slate-950 overflow-hidden">
-            {/* Background Reactor Effect */}
-            <div className="absolute inset-0 opacity-20">
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-red-500 rounded-full blur-3xl animate-pulse" />
-            </div>
-
+        <div className="max-w-md mx-auto relative">
             {/* HUD */}
-            <div className="absolute top-6 left-6 z-20 text-white font-mono">
-                <div className="text-xl font-bold text-red-400 mb-2">LEVEL {level}</div>
+            <div className="flex justify-between items-center mb-4">
+                <Badge variant="outline" className="text-base font-semibold px-4 py-1">
+                    Level {level}
+                </Badge>
                 {gameState === 'input' && (
-                    <div className="text-sm text-yellow-400">TIME: {timeLeft}s</div>
+                    <Badge variant={timeLeft <= 3 ? "destructive" : "outline"} className="text-base font-mono px-4 py-1">
+                        {timeLeft}s
+                    </Badge>
                 )}
             </div>
 
@@ -201,85 +165,74 @@ export default function ReactorSabotage({ onComplete }) {
                 <div
                     key={distractor.id}
                     className={`absolute z-30 pointer-events-none ${
-                        distractor.position === 'top' ? 'top-4 left-1/2 -translate-x-1/2' :
-                        distractor.position === 'bottom' ? 'bottom-4 left-1/2 -translate-x-1/2' :
-                        distractor.position === 'left' ? 'left-4 top-1/2 -translate-y-1/2' :
-                        'right-4 top-1/2 -translate-y-1/2'
+                        distractor.position === 'top' ? '-top-8 left-1/2 -translate-x-1/2' :
+                        distractor.position === 'bottom' ? '-bottom-8 left-1/2 -translate-x-1/2' :
+                        distractor.position === 'left' ? 'left-0 top-1/2 -translate-y-1/2 -translate-x-full' :
+                        'right-0 top-1/2 -translate-y-1/2 translate-x-full'
                     }`}
                 >
                     {distractor.type === 'glitch' ? (
-                        <div className="text-4xl animate-pulse text-red-500 font-mono">
-                            ⚠ GLITCH
-                        </div>
+                        <span className="text-2xl animate-pulse text-destructive font-mono">GLITCH</span>
                     ) : (
-                        <div className="text-4xl animate-bounce text-purple-500">
-                            👤
-                        </div>
+                        <span className="text-2xl animate-bounce">👤</span>
                     )}
                 </div>
             ))}
 
-            {/* Main Game Area */}
-            <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-slate-900/80 backdrop-blur-sm p-6 rounded-2xl border-2 border-slate-700 shadow-2xl">
-                    <div className="text-center mb-4">
-                        <h3 className="text-lg font-mono text-slate-400 mb-2">
-                            {gameState === 'showing' ? 'SECURITY KEYPAD' : 'ENTER CODE'}
-                        </h3>
-                    </div>
+            {/* Game Grid */}
+            <Card className="p-6 bg-slate-900 border-slate-700">
+                <p className="text-center text-sm font-medium text-slate-400 mb-4">
+                    {gameState === 'showing' ? 'Memorize the pattern...' : `Select ${sequence.length} tiles`}
+                </p>
 
-                    <div className="grid grid-cols-3 gap-3 p-4 bg-slate-950 rounded-xl">
-                        {[...Array(GRID_SIZE * GRID_SIZE)].map((_, i) => {
-                            const isHighlighted = gameState === 'showing' && sequence.includes(i);
-                            const isSelected = gameState === 'input' && userSequence.includes(i);
+                <div className="grid grid-cols-3 gap-3">
+                    {[...Array(GRID_SIZE * GRID_SIZE)].map((_, i) => {
+                        const isHighlighted = gameState === 'showing' && sequence.includes(i);
+                        const isSelected = gameState === 'input' && userSequence.includes(i);
 
-                            return (
-                                <button
-                                    key={i}
-                                    onClick={() => handleTileClick(i)}
-                                    disabled={gameState !== 'input'}
-                                    className={`
-                                        w-20 h-20 rounded-lg transition-all duration-300 font-mono text-2xl font-bold
-                                        ${isHighlighted 
-                                            ? 'bg-red-500 shadow-[0_0_20px_rgba(239,68,68,0.8)] scale-110 border-2 border-white' 
-                                            : isSelected
-                                            ? 'bg-green-600 border-2 border-green-400 shadow-[0_0_15px_rgba(34,197,94,0.5)]'
-                                            : 'bg-slate-800 hover:bg-slate-700 border-2 border-slate-600'
-                                        }
-                                        ${gameState === 'input' ? 'cursor-pointer' : 'cursor-default'}
-                                    `}
-                                >
-                                    {isSelected && '✓'}
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    {gameState === 'input' && (
-                        <div className="mt-6 flex flex-col items-center gap-3">
-                            <div className="text-sm text-slate-400 font-mono">
-                                Selected: {userSequence.length} / {sequence.length}
-                            </div>
+                        return (
                             <button
-                                onClick={submitPattern}
-                                disabled={userSequence.length !== sequence.length}
-                                className="px-8 py-3 bg-green-600 hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-full font-bold transition-all"
+                                key={i}
+                                onClick={() => handleTileClick(i)}
+                                disabled={gameState !== 'input'}
+                                className={`
+                                    aspect-square min-h-[60px] rounded-lg transition-all duration-300 font-bold text-xl
+                                    ${isHighlighted
+                                        ? 'bg-primary shadow-[0_0_15px_hsl(var(--primary)/0.6)] scale-105 border-2 border-white'
+                                        : isSelected
+                                        ? 'bg-green-600 border-2 border-green-400 shadow-[0_0_10px_rgba(34,197,94,0.4)]'
+                                        : 'bg-slate-800 hover:bg-slate-700 border-2 border-slate-600'
+                                    }
+                                    ${gameState === 'input' ? 'cursor-pointer' : 'cursor-default'}
+                                `}
                             >
-                                SUBMIT CODE
+                                {isSelected && '✓'}
                             </button>
-                        </div>
-                    )}
-
-                    {gameState === 'showing' && (
-                        <div className="mt-6 text-center">
-                            <div className="text-sm text-yellow-400 font-mono animate-pulse">
-                                MEMORIZE THE PATTERN...
-                            </div>
-                        </div>
-                    )}
+                        );
+                    })}
                 </div>
-            </div>
+
+                {gameState === 'input' && (
+                    <div className="mt-4 flex flex-col items-center gap-3">
+                        <p className="text-sm text-slate-400">
+                            Selected: {userSequence.length} / {sequence.length}
+                        </p>
+                        <Button
+                            onClick={submitPattern}
+                            disabled={userSequence.length !== sequence.length}
+                            className="w-full"
+                        >
+                            Submit Pattern
+                        </Button>
+                    </div>
+                )}
+
+                {gameState === 'showing' && (
+                    <p className="mt-4 text-center text-sm text-yellow-400 animate-pulse">
+                        Watch carefully...
+                    </p>
+                )}
+            </Card>
         </div>
     );
 }
-

@@ -5,7 +5,7 @@ import os
 # Ensure output directory exists
 os.makedirs('backend', exist_ok=True)
 
-TARGET_POS_RATE = float(os.environ.get("QM_TARGET_POS_RATE", "0.35"))  # desired prevalence of Risk_Label==1
+TARGET_POS_RATE = float(os.environ.get("QM_TARGET_POS_RATE", "0.42"))  # desired prevalence of Risk_Label==1
 
 def sigmoid(z: np.ndarray) -> np.ndarray:
     return 1.0 / (1.0 + np.exp(-z))
@@ -202,7 +202,7 @@ def load_and_process_student_data(filepath):
         + 0.2 * (1.0 - final_df['13_Exercise'])
         + 0.15 * (1.0 - final_df['7_Diet'])
         + 0.1 * (1.0 - final_df['1_Hippocampal'])
-        + np.random.normal(0, 0.05, len(final_df))   # small boundary noise
+        + np.random.normal(0, 0.02, len(final_df))   # minimal boundary noise
     )
     # Calibrate prevalence to a target rate (e.g., 35%) so the dataset is not unrealistically imbalanced.
     bias = find_bias_for_target_prevalence(z.values if hasattr(z, "values") else z, TARGET_POS_RATE)

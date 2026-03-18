@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quantum Mind — Science Fair Poster</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  @page { size: 48in 36in; margin: 0; }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --blue-dark:  #0d2240;
+    --blue-mid:   #1a3a6b;
+    --blue-head:  #1e3d72;
+    --blue-light: #2b5ea7;
+    --blue-pale:  #e8eef6;
+    --blue-wash:  #f3f6fb;
+    --gold:       #c9a227;
+    --gold-light: #f5e6a3;
+    --white:      #ffffff;
+    --off-white:  #fafbfd;
+    --text:       #1a1a2e;
+    --text-sec:   #3d3d5c;
+    --text-cap:   #555;
+    --green:      #1a8a4a;
+    --red:        #c0392b;
+    --orange:     #d4770b;
+    --border:     #d0d8e8;
+    --card-bg:    #ffffff;
+  }
+
+  html { font-size: 13px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: 'Source Sans 3', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--blue-dark);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 18px;
+  }
+
+  /* ━━ POSTER BOARD ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .poster {
+    max-width: 1380px;
+    margin: 0 auto;
+    background: var(--blue-dark);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  /* ━━ TITLE BANNER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .title-banner {
+    background: var(--blue-dark);
+    color: var(--white);
+    text-align: center;
+    padding: 28px 40px 22px;
+    border-bottom: 4px solid var(--gold);
+  }
+  .title-banner h1 {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 2.1rem;
+    font-weight: 900;
+    letter-spacing: .3px;
+    line-height: 1.3;
+    margin-bottom: 6px;
+    color: var(--white);
+  }
+  .title-banner .subtitle {
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: #b8cce4;
+    max-width: 860px;
+    margin: 0 auto 10px;
+    line-height: 1.45;
+  }
+  .title-banner .author-line {
+    font-size: .88rem;
+    color: #8aa8cc;
+  }
+  .title-banner .author-line strong {
+    color: #d4e2f4;
+  }
+
+  /* ━━ 3-COLUMN BODY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr 1fr;
+    gap: 14px;
+    padding: 14px;
+    align-items: start;
+  }
+
+  .col { display: flex; flex-direction: column; gap: 12px; }
+
+  /* ━━ SECTION PANEL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .panel {
+    background: var(--white);
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
+  }
+  .panel-head {
+    background: var(--blue-head);
+    color: var(--white);
+    padding: 8px 16px;
+    font-size: .88rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Source Sans 3', sans-serif;
+  }
+  .panel-body {
+    padding: 14px 16px;
+    font-size: .86rem;
+    line-height: 1.55;
+    color: var(--text);
+  }
+  .panel-body p { margin-bottom: 8px; }
+  .panel-body p:last-child { margin-bottom: 0; }
+
+  .panel-body strong { color: var(--blue-mid); }
+  .panel-body em { font-style: italic; color: var(--text-sec); }
+
+  /* ━━ LISTS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .panel-body ul, .panel-body ol {
+    margin: 6px 0 8px 20px;
+    font-size: .84rem;
+  }
+  .panel-body li {
+    margin-bottom: 3px;
+    line-height: 1.5;
+  }
+
+  /* numbered objectives */
+  ol.objectives { counter-reset: obj; list-style: none; margin-left: 0; padding: 0; }
+  ol.objectives li {
+    counter-increment: obj;
+    padding-left: 26px;
+    position: relative;
+    margin-bottom: 5px;
+  }
+  ol.objectives li::before {
+    content: counter(obj) ".";
+    position: absolute;
+    left: 0;
+    font-weight: 700;
+    color: var(--blue-light);
+  }
+
+  /* ━━ SUBHEADING INSIDE PANEL ━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .sub-head {
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--blue-mid);
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin: 10px 0 5px;
+    padding-bottom: 3px;
+    border-bottom: 1.5px solid var(--blue-pale);
+  }
+  .sub-head:first-child { margin-top: 0; }
+
+  /* ━━ TABLE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .78rem;
+    margin: 6px 0;
+  }
+  .data-table th {
+    background: var(--blue-pale);
+    color: var(--blue-dark);
+    padding: 5px 8px;
+    text-align: left;
+    font-weight: 700;
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    border-bottom: 2px solid var(--blue-light);
+  }
+  .data-table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid #e5e9f0;
+    color: var(--text);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:nth-child(even) td { background: var(--blue-wash); }
+
+  .tag {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 3px;
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .3px;
+  }
+  .tag-neuro  { background: #dbeafe; color: #1e40af; }
+  .tag-life   { background: #d1fae5; color: #065f46; }
+  .tag-emo    { background: #fee2e2; color: #991b1b; }
+  .tag-behav  { background: #ffedd5; color: #9a3412; }
+  .tag-env    { background: #ede9fe; color: #5b21b6; }
+  .tag-demo   { background: #fef3c7; color: #92400e; }
+  .tag-gen    { background: #fef3c7; color: #92400e; }
+
+  /* ━━ EQUATION / CODE BLOCK ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .eq-block {
+    background: var(--blue-wash);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue-light);
+    border-radius: 3px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: .78rem;
+    line-height: 1.7;
+    color: var(--blue-dark);
+    overflow-x: auto;
+  }
+  .eq-block .eq-label {
+    display: block;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--text-cap);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  /* ━━ CIRCUIT DIAGRAM ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .circuit {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 12px 14px;
+    margin: 8px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem;
+    line-height: 1.65;
+    color: var(--blue-dark);
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* ━━ FLOW DIAGRAM ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 8px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .flow-step {
+    background: var(--blue-wash);
+    border: 1.5px solid var(--blue-light);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: .74rem;
+    font-weight: 600;
+    color: var(--blue-dark);
+    text-align: center;
+    white-space: nowrap;
+  }
+  .flow-step.active {
+    background: var(--blue-light);
+    color: var(--white);
+    border-color: var(--blue-dark);
+  }
+  .flow-arr {
+    font-size: .9rem;
+    color: var(--blue-light);
+    padding: 0 4px;
+    font-weight: 700;
+  }
+
+  /* ━━ PIPELINE BOXES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .pipeline-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 6px;
+    align-items: center;
+    margin: 8px 0;
+  }
+  .pipe-box {
+    background: var(--blue-wash);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .pipe-box .pb-title {
+    font-weight: 700;
+    font-size: .76rem;
+    color: var(--blue-dark);
+    display: block;
+  }
+  .pipe-box .pb-sub {
+    font-size: .68rem;
+    color: var(--text-cap);
+    margin-top: 2px;
+    display: block;
+  }
+  .pipe-arr { text-align: center; font-size: 1.1rem; color: var(--blue-light); font-weight: 700; }
+
+  /* ━━ METHOD STEPS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .method-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 8px 0;
+  }
+  .m-step {
+    text-align: center;
+    padding: 8px 6px;
+    background: var(--blue-wash);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+  .m-step .m-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--blue-light);
+    color: #fff;
+    font-size: .68rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .m-step .m-title {
+    display: block;
+    font-weight: 700;
+    font-size: .74rem;
+    color: var(--blue-dark);
+  }
+  .m-step .m-desc {
+    display: block;
+    font-size: .66rem;
+    color: var(--text-cap);
+    margin-top: 2px;
+    line-height: 1.35;
+  }
+
+  /* ━━ ARCHITECTURE GRID ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin: 8px 0;
+  }
+  .arch-box {
+    background: var(--blue-wash);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--blue-light);
+    border-radius: 4px;
+    padding: 10px;
+    text-align: center;
+  }
+  .arch-box .ab-title {
+    font-weight: 700;
+    font-size: .76rem;
+    color: var(--blue-dark);
+    display: block;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .arch-box .ab-items {
+    font-size: .7rem;
+    color: var(--text-sec);
+    line-height: 1.55;
+  }
+
+  /* ━━ RISK TIERS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .tier-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin: 6px 0;
+  }
+  .tier {
+    border-radius: 4px;
+    padding: 8px 10px;
+    text-align: center;
+    font-weight: 700;
+    font-size: .78rem;
+  }
+  .tier .t-range {
+    font-weight: 400;
+    font-size: .68rem;
+    display: block;
+    margin-top: 1px;
+  }
+  .tier-low  { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+  .tier-mod  { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .tier-high { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+  .tier-crit { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+  /* ━━ TECH PILLS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .pills { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0; }
+  .pill {
+    background: var(--blue-pale);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 2px 8px;
+    font-size: .7rem;
+    font-weight: 600;
+    color: var(--blue-dark);
+  }
+
+  /* ━━ METRIC BARS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+  .bar-label {
+    font-size: .74rem;
+    font-weight: 600;
+    color: var(--text);
+    width: 90px;
+    flex-shrink: 0;
+  }
+  .bar-track {
+    flex: 1;
+    height: 14px;
+    background: #e5e9f0;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: var(--blue-light);
+    border-radius: 2px;
+  }
+  .bar-fill.green { background: var(--green); }
+  .bar-fill.gold  { background: var(--gold); }
+  .bar-val {
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--blue-dark);
+    width: 36px;
+    text-align: right;
+  }
+
+  /* ━━ QUBIT VIS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .qubit-row {
+    display: grid;
+    grid-template-columns: repeat(14, 1fr);
+    gap: 4px;
+    margin: 8px 0;
+  }
+  .qb {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .55rem;
+    font-weight: 700;
+    border: 2px solid;
+  }
+  .qb-n { background: #dbeafe; border-color: #3b82f6; color: #1e40af; }
+  .qb-l { background: #d1fae5; border-color: #10b981; color: #065f46; }
+  .qb-d { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+  .qb-e { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+  .qb-b { background: #ffedd5; border-color: #f97316; color: #9a3412; }
+  .qb-v { background: #ede9fe; border-color: #8b5cf6; color: #5b21b6; }
+
+  .legend {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: .66rem;
+    color: var(--text-cap);
+    margin-top: 4px;
+    justify-content: center;
+  }
+  .legend span::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 3px;
+    vertical-align: middle;
+  }
+  .lg-n::before { background: #3b82f6; }
+  .lg-l::before { background: #10b981; }
+  .lg-d::before { background: #f59e0b; }
+  .lg-e::before { background: #ef4444; }
+  .lg-b::before { background: #f97316; }
+  .lg-v::before { background: #8b5cf6; }
+
+  /* ━━ FIGURE CAPTION ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .fig-cap {
+    font-size: .68rem;
+    color: var(--text-cap);
+    font-style: italic;
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  /* ━━ CALLOUT BOX ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .callout {
+    background: var(--blue-wash);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--blue-light);
+    border-radius: 3px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    font-size: .82rem;
+  }
+  .callout strong { color: var(--blue-dark); }
+
+  /* ━━ FULL-WIDTH BOTTOM ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .bottom-strip {
+    margin: 0 14px 14px;
+  }
+
+  .results-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  /* ━━ FOOTER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .poster-footer {
+    background: var(--blue-dark);
+    color: #8aa8cc;
+    text-align: center;
+    padding: 10px 20px;
+    font-size: .72rem;
+    border-top: 3px solid var(--gold);
+  }
+  .poster-footer strong { color: #d4e2f4; }
+
+  /* ━━ RESPONSIVE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  @media (max-width: 1100px) {
+    .columns { grid-template-columns: 1fr; }
+    .qubit-row { grid-template-columns: repeat(7, 1fr); }
+  }
+
+  /* ━━ INLINE KEY-VALUE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .kv { margin: 4px 0; }
+  .kv .k {
+    font-weight: 700;
+    color: var(--blue-mid);
+    font-size: .78rem;
+  }
+  .kv .v {
+    font-size: .78rem;
+    color: var(--text);
+  }
+
+  /* ━━ SVG BAR CHART (inline) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .chart-wrap {
+    margin: 8px 0;
+    text-align: center;
+  }
+  .chart-wrap svg { max-width: 100%; }
+</style>
+</head>
+<body>
+
+<div class="poster">
+
+  <!-- ════════ TITLE BANNER ════════ -->
+  <div class="title-banner">
+    <h1>Quantum Mind: Early Detection of Mental Health Crises Using<br/>Quantum Machine Learning</h1>
+    <div class="subtitle">
+      Spatiotemporal-Aware Student Depression Screening via Variational Quantum Classifiers,
+      Voice Biometrics &amp; Neurocognitive Gaming
+    </div>
+    <div class="author-line">
+      <strong>Arjun</strong> &nbsp;&middot;&nbsp; PennyLane &middot; 14-Qubit VQC &middot; Hume EVI &middot; Meta-Llama 3.1 &middot; React &middot; Flask &middot; Google Cloud Run
+    </div>
+  </div>
+
+  <!-- ════════ 3-COLUMN BODY ════════ -->
+  <div class="columns">
+
+    <!-- ──── COLUMN 1 ──── -->
+    <div class="col">
+
+      <!-- ABSTRACT -->
+      <div class="panel">
+        <div class="panel-head">Abstract</div>
+        <div class="panel-body">
+          <p>We present <strong>Quantum Mind</strong>, a novel mental health triage system that leverages a <strong>Variational Quantum Classifier (VQC)</strong> to detect depression risk and mental health crises in students. By mapping <strong>14 psychological and behavioral features</strong> onto a 14-qubit quantum circuit, we exploit quantum entanglement to model complex, non-linear symptom interactions that classical methods struggle to capture.</p>
+          <p>The system integrates neurocognitive games, real-time voice biometric analysis (Hume EVI), and AI-powered transcript processing (Meta-Llama 3.1) into a holistic, multimodal assessment pipeline deployed on Google Cloud Run with real-time inference.</p>
+        </div>
+      </div>
+
+      <!-- INTRODUCTION & PROBLEM -->
+      <div class="panel">
+        <div class="panel-head">Introduction &amp; Problem Statement</div>
+        <div class="panel-body">
+          <p>Depression is a leading cause of disability among students worldwide. Traditional screening relies on self-report surveys alone, missing critical behavioral and cognitive signals. Classical ML models struggle with the <strong>non-linear entanglement</strong> between psychological symptoms where anxiety, sleep disruption, isolation, and cognitive decline interact in complex feedback loops.</p>
+
+          <div class="sub-head">Hypothesis</div>
+          <p>Quantum machine learning can detect complex, non-linear relationships between psychological symptoms (modeled as quantum entanglement) more effectively than classical approaches, enabling earlier and more accurate mental health risk identification in student populations.</p>
+
+          <div class="sub-head">Limitations Addressed</div>
+          <ul>
+            <li>Self-report surveys alone miss behavioral &amp; cognitive signals</li>
+            <li>Classical models underfit multi-symptom interaction dynamics</li>
+            <li>No existing multimodal screening tools for students</li>
+            <li>Early intervention requires automated, real-time triage</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- RESEARCH OBJECTIVES -->
+      <div class="panel">
+        <div class="panel-head">Research Objectives</div>
+        <div class="panel-body">
+          <ol class="objectives">
+            <li>Build a VQC-based classifier mapping 14 features to mental health risk probability</li>
+            <li>Integrate biometric voice analysis for anxiety &amp; isolation detection via Hume EVI</li>
+            <li>Design neurocognitive games measuring sustained attention &amp; working memory</li>
+            <li>Achieve clinical-grade risk stratification (Low / Moderate / High / Crisis)</li>
+            <li>Deploy a production-ready, containerized cloud triage system</li>
+            <li>Evaluate comprehensively using 15+ statistical metrics</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- 14-FEATURE TABLE -->
+      <div class="panel">
+        <div class="panel-head">14-Dimensional Quantum Feature Space</div>
+        <div class="panel-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>#</th><th>Feature</th><th>Category</th><th>Source</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>0</td><td>Cognitive Connectivity</td><td><span class="tag tag-neuro">Neuro</span></td><td>Focus Game</td></tr>
+              <tr><td>1</td><td>Memory Function</td><td><span class="tag tag-neuro">Neuro</span></td><td>Memory Game</td></tr>
+              <tr><td>2</td><td>Sleep Quality</td><td><span class="tag tag-life">Lifestyle</span></td><td>Survey</td></tr>
+              <tr><td>3</td><td>Developmental Stage</td><td><span class="tag tag-demo">Demo</span></td><td>Estimated</td></tr>
+              <tr><td>4</td><td>Anxiety Level</td><td><span class="tag tag-emo">Emotional</span></td><td>Voice (Hume)</td></tr>
+              <tr><td>5</td><td>Social Isolation</td><td><span class="tag tag-emo">Emotional</span></td><td>Voice (Hume)</td></tr>
+              <tr><td>6</td><td>Substance Risk</td><td><span class="tag tag-behav">Behavioral</span></td><td>Survey</td></tr>
+              <tr><td>7</td><td>Diet Quality</td><td><span class="tag tag-life">Lifestyle</span></td><td>Survey</td></tr>
+              <tr><td>8</td><td>Academic Pressure</td><td><span class="tag tag-env">Environ</span></td><td>Survey</td></tr>
+              <tr><td>9</td><td>Family History</td><td><span class="tag tag-gen">Genetic</span></td><td>Estimated</td></tr>
+              <tr><td>10</td><td>Bullying Exposure</td><td><span class="tag tag-env">Environ</span></td><td>Estimated</td></tr>
+              <tr><td>11</td><td>Safety Perception</td><td><span class="tag tag-env">Environ</span></td><td>Estimated</td></tr>
+              <tr><td>12</td><td>Social Monitoring</td><td><span class="tag tag-env">Environ</span></td><td>Estimated</td></tr>
+              <tr><td>13</td><td>Physical Activity</td><td><span class="tag tag-life">Lifestyle</span></td><td>Estimated</td></tr>
+            </tbody>
+          </table>
+          <p class="fig-cap">Table 1. Each feature normalized to [0, 1] before quantum angle embedding (θ = feature × π).</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ──── COLUMN 2 (CENTER) ──── -->
+    <div class="col">
+
+      <!-- ENGINEERING METHODOLOGY -->
+      <div class="panel">
+        <div class="panel-head">Engineering Methodology</div>
+        <div class="panel-body">
+
+          <div class="sub-head">Overview: 4-Stage Pipeline</div>
+          <div class="method-steps">
+            <div class="m-step">
+              <span class="m-num">1</span>
+              <span class="m-title">Curation</span>
+              <span class="m-desc">27,901 student records sourced &amp; cleaned</span>
+            </div>
+            <div class="m-step">
+              <span class="m-num">2</span>
+              <span class="m-title">Modeling</span>
+              <span class="m-desc">Map 18 raw features to 14 quantum dimensions</span>
+            </div>
+            <div class="m-step">
+              <span class="m-num">3</span>
+              <span class="m-title">Learning</span>
+              <span class="m-desc">Train VQC with Adam optimizer (lr=0.03)</span>
+            </div>
+            <div class="m-step">
+              <span class="m-num">4</span>
+              <span class="m-title">Analysis</span>
+              <span class="m-desc">15+ metrics, threshold tuning, feature importance</span>
+            </div>
+          </div>
+
+          <div class="sub-head">Data Interpolation &amp; Preparation</div>
+          <div class="pipeline-row">
+            <div class="pipe-box">
+              <span class="pb-title">Raw Dataset</span>
+              <span class="pb-sub">27,901 records &middot; 18 cols</span>
+            </div>
+            <div class="pipe-arr">&rarr;</div>
+            <div class="pipe-box">
+              <span class="pb-title">Feature Engineering</span>
+              <span class="pb-sub">14-dim Hilbert space &middot; synthetic interplay</span>
+            </div>
+            <div class="pipe-arr">&rarr;</div>
+            <div class="pipe-box">
+              <span class="pb-title">Train / Test Split</span>
+              <span class="pb-sub">80 / 20 stratified &middot; 35% positive</span>
+            </div>
+          </div>
+
+          <div class="sub-head">Synthetic Feature Derivation</div>
+          <div class="eq-block">
+            <span class="eq-label">Cross-Feature Interactions</span>
+Connectivity = f(Academic, Anxiety, Sleep)
+Memory       = f(Diet, Anxiety, Sleep)
+Bullying     = f(Isolation, Anxiety, Sleep)
+Safety       = inv(Substance + Family + Anxiety)
+Exercise     = f(Sleep, Anxiety, Diet)</div>
+
+          <div class="sub-head">Quantum Circuit Architecture</div>
+          <div class="circuit">q₀  ──[Ry(θ₀)]──┤                              ├──⟨Z⟩── P(risk)
+q₁  ──[Ry(θ₁)]──┤  StronglyEntanglingLayers     ├
+q₂  ──[Ry(θ₂)]──┤  3 layers × 14 qubits         ├
+q₃  ──[Ry(θ₃)]──┤  × 3 rotation angles/qubit    ├
+ ⋮       ⋮       ┤  CNOT entanglement gates       ├
+q₁₃ ──[Ry(θ₁₃)]─┤  = 126 trainable parameters   ├</div>
+
+          <div class="eq-block">
+            <span class="eq-label">Phase 1 — Angle Embedding</span>
+|ψ⟩ = Ry(x₀·π) ⊗ Ry(x₁·π) ⊗ ... ⊗ Ry(x₁₃·π) |0⟩^⊗14</div>
+
+          <div class="eq-block">
+            <span class="eq-label">Phase 3 — Risk Probability Output</span>
+P(risk) = ( ⟨ψ'| Z₀ |ψ'⟩ + 1 ) / 2  ∈ [0, 1]</div>
+
+          <div class="sub-head">Qubit Feature Mapping (Fig. 1)</div>
+          <div class="qubit-row">
+            <div class="qb qb-n">q₀</div>
+            <div class="qb qb-n">q₁</div>
+            <div class="qb qb-l">q₂</div>
+            <div class="qb qb-d">q₃</div>
+            <div class="qb qb-e">q₄</div>
+            <div class="qb qb-e">q₅</div>
+            <div class="qb qb-b">q₆</div>
+            <div class="qb qb-l">q₇</div>
+            <div class="qb qb-v">q₈</div>
+            <div class="qb qb-d">q₉</div>
+            <div class="qb qb-v">q₁₀</div>
+            <div class="qb qb-v">q₁₁</div>
+            <div class="qb qb-v">q₁₂</div>
+            <div class="qb qb-l">q₁₃</div>
+          </div>
+          <div class="legend">
+            <span class="lg-n">Neurocognitive</span>
+            <span class="lg-l">Lifestyle</span>
+            <span class="lg-d">Demographic</span>
+            <span class="lg-e">Emotional</span>
+            <span class="lg-b">Behavioral</span>
+            <span class="lg-v">Environmental</span>
+          </div>
+          <p class="fig-cap">Fig. 1. 14-qubit mapping colored by feature category. CNOT gates entangle neighboring qubits across 3 layers.</p>
+
+          <div class="sub-head">System Architecture</div>
+          <div class="arch-grid">
+            <div class="arch-box">
+              <span class="ab-title">Frontend</span>
+              <div class="ab-items">React 18 + Vite<br/>Tailwind CSS<br/>Hume EVI SDK<br/>Canvas Game Engine</div>
+            </div>
+            <div class="arch-box">
+              <span class="ab-title">Backend</span>
+              <div class="ab-items">Flask REST API<br/>PennyLane VQC<br/>JWT Authentication<br/>Gunicorn (1w/8t)</div>
+            </div>
+            <div class="arch-box">
+              <span class="ab-title">Cloud</span>
+              <div class="ab-items">Google Cloud Run<br/>Docker Containers<br/>Auto-scaling<br/>CORS Enabled</div>
+            </div>
+          </div>
+
+          <div class="sub-head">User Assessment Flow (Fig. 2)</div>
+          <div class="flow">
+            <div class="flow-step">Login</div>
+            <span class="flow-arr">&rarr;</span>
+            <div class="flow-step active">Focus Game</div>
+            <span class="flow-arr">&rarr;</span>
+            <div class="flow-step active">Memory Game</div>
+            <span class="flow-arr">&rarr;</span>
+            <div class="flow-step active">Voice + Survey</div>
+            <span class="flow-arr">&rarr;</span>
+            <div class="flow-step" style="background:#fef3c7;border-color:#f59e0b;color:#92400e;">Quantum Inference</div>
+            <span class="flow-arr">&rarr;</span>
+            <div class="flow-step" style="background:#d1fae5;border-color:#10b981;color:#065f46;">Risk Report</div>
+          </div>
+          <p class="fig-cap">Fig. 2. End-to-end assessment pipeline from user login to quantum-computed risk report.</p>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ──── COLUMN 3 ──── -->
+    <div class="col">
+
+      <!-- MULTIMODAL DATA COLLECTION -->
+      <div class="panel">
+        <div class="panel-head">Multimodal Data Collection</div>
+        <div class="panel-body">
+          <div class="arch-grid">
+            <div class="arch-box">
+              <span class="ab-title">NeonRunner</span>
+              <div class="ab-items">Arcade-style runner<br/>Sustained attention<br/>Reaction time<br/>&rarr; Cognitive Score</div>
+            </div>
+            <div class="arch-box">
+              <span class="ab-title">ReactorSabotage</span>
+              <div class="ab-items">Grid memory match<br/>Working memory<br/>Pattern recall<br/>&rarr; Memory Score</div>
+            </div>
+            <div class="arch-box">
+              <span class="ab-title">Hume EVI</span>
+              <div class="ab-items">Voice prosody<br/>WebSocket stream<br/>Llama 3 NLP<br/>&rarr; Anxiety &amp; Isolation</div>
+            </div>
+          </div>
+          <p class="fig-cap">Fig. 3. Three data collection modalities feed into the 14-feature quantum vector.</p>
+        </div>
+      </div>
+
+      <!-- MODEL TRAINING -->
+      <div class="panel">
+        <div class="panel-head">Model Training &amp; Optimization</div>
+        <div class="panel-body">
+          <div class="sub-head">Training Configuration</div>
+          <div class="kv"><span class="k">Optimizer:</span> <span class="v">Adam (learning rate = 0.03)</span></div>
+          <div class="kv"><span class="k">Loss Function:</span> <span class="v">Mean Squared Error</span></div>
+          <div class="kv"><span class="k">Batch Size:</span> <span class="v">64 samples</span></div>
+          <div class="kv"><span class="k">Training Steps:</span> <span class="v">100+ iterations</span></div>
+          <div class="kv"><span class="k">Backend:</span> <span class="v">PennyLane default.qubit (14 wires)</span></div>
+          <div class="kv"><span class="k">Parameters:</span> <span class="v">3 layers × 14 qubits × 3 = 126</span></div>
+
+          <div class="sub-head" style="margin-top:10px;">Dataset Split (Fig. 4)</div>
+          <div class="bar-row">
+            <span class="bar-label">Training</span>
+            <div class="bar-track"><div class="bar-fill" style="width:80%;"></div></div>
+            <span class="bar-val">80%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Testing</span>
+            <div class="bar-track"><div class="bar-fill green" style="width:20%;"></div></div>
+            <span class="bar-val">20%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Positive Rate</span>
+            <div class="bar-track"><div class="bar-fill gold" style="width:35%;"></div></div>
+            <span class="bar-val">35%</span>
+          </div>
+
+          <!-- Inline bar chart for key stats -->
+          <div class="chart-wrap">
+            <svg width="320" height="120" viewBox="0 0 320 120">
+              <rect x="20" y="95" width="280" height="1" fill="#d0d8e8"/>
+              <!-- bars -->
+              <rect x="35"  y="20" width="32" height="75" rx="2" fill="#1e3d72"/>
+              <rect x="85"  y="45" width="32" height="50" rx="2" fill="#2b5ea7"/>
+              <rect x="135" y="55" width="32" height="40" rx="2" fill="#3b82f6"/>
+              <rect x="185" y="70" width="32" height="25" rx="2" fill="#60a5fa"/>
+              <rect x="235" y="35" width="32" height="60" rx="2" fill="#1a8a4a"/>
+              <!-- labels -->
+              <text x="51"  y="112" font-size="8" fill="#555" text-anchor="middle" font-family="Source Sans 3">Samples</text>
+              <text x="101" y="112" font-size="8" fill="#555" text-anchor="middle" font-family="Source Sans 3">Features</text>
+              <text x="151" y="112" font-size="8" fill="#555" text-anchor="middle" font-family="Source Sans 3">Params</text>
+              <text x="201" y="112" font-size="8" fill="#555" text-anchor="middle" font-family="Source Sans 3">Layers</text>
+              <text x="251" y="112" font-size="8" fill="#555" text-anchor="middle" font-family="Source Sans 3">Hilbert</text>
+              <!-- values -->
+              <text x="51"  y="15" font-size="9" fill="#1e3d72" text-anchor="middle" font-weight="700" font-family="Source Sans 3">5,279</text>
+              <text x="101" y="40" font-size="9" fill="#2b5ea7" text-anchor="middle" font-weight="700" font-family="Source Sans 3">14</text>
+              <text x="151" y="50" font-size="9" fill="#3b82f6" text-anchor="middle" font-weight="700" font-family="Source Sans 3">126</text>
+              <text x="201" y="65" font-size="9" fill="#60a5fa" text-anchor="middle" font-weight="700" font-family="Source Sans 3">3</text>
+              <text x="251" y="30" font-size="9" fill="#1a8a4a" text-anchor="middle" font-weight="700" font-family="Source Sans 3">16,384</text>
+            </svg>
+          </div>
+          <p class="fig-cap">Fig. 4. Key model statistics. Hilbert = 2<sup>14</sup> dimensional quantum state space.</p>
+        </div>
+      </div>
+
+      <!-- EVALUATION -->
+      <div class="panel">
+        <div class="panel-head">Evaluation &amp; Statistical Analysis</div>
+        <div class="panel-body">
+          <div class="sub-head">Core Metrics Computed</div>
+          <ul>
+            <li>Accuracy, Precision, Recall, F1-Score</li>
+            <li>Balanced Accuracy &amp; Matthews Correlation Coefficient</li>
+            <li>Cohen's Kappa, AUC-ROC, AUC-PR</li>
+            <li>Sensitivity, Specificity, PPV, NPV</li>
+            <li>Log Loss &amp; Confusion Matrix</li>
+          </ul>
+          <div class="sub-head">Advanced Analysis</div>
+          <ul>
+            <li>Threshold analysis at 9 decision boundaries (0.1–0.9)</li>
+            <li>Permutation-based feature importance ranking</li>
+            <li>Probability distribution histograms &amp; quartile analysis</li>
+            <li>Training loss convergence curves</li>
+            <li>Overfitting diagnostic: Train vs. Test performance</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- CLINICAL RISK -->
+      <div class="panel">
+        <div class="panel-head">Clinical Risk Stratification</div>
+        <div class="panel-body">
+          <div class="tier-grid">
+            <div class="tier tier-low">Low<span class="t-range">&lt; 0.40</span></div>
+            <div class="tier tier-mod">Moderate<span class="t-range">0.40 – 0.70</span></div>
+            <div class="tier tier-high">High<span class="t-range">0.70 – 0.85</span></div>
+            <div class="tier tier-crit">Crisis<span class="t-range">&ge; 0.85</span></div>
+          </div>
+          <div class="sub-head">Severity Actions</div>
+          <ul>
+            <li><strong style="color:#065f46;">Mild:</strong> Continue monitoring, maintain healthy habits</li>
+            <li><strong style="color:#92400e;">Moderate:</strong> Monitor closely, consider professional support</li>
+            <li><strong style="color:#9a3412;">Severe:</strong> Professional evaluation strongly recommended</li>
+            <li><strong style="color:#991b1b;">Critical:</strong> Immediate professional intervention required</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- CONCLUSIONS -->
+      <div class="panel">
+        <div class="panel-head">Conclusions</div>
+        <div class="panel-body">
+          <ul>
+            <li><strong>First known application</strong> of VQC to student mental health screening</li>
+            <li>Quantum entanglement effectively models symptom interaction feedback loops</li>
+            <li>Multimodal approach (games + voice + survey) captures signals surveys alone miss</li>
+            <li>Production-ready system deployed on Google Cloud with real-time inference</li>
+            <li>Comprehensive evaluation using 15+ clinical-grade metrics</li>
+          </ul>
+          <div class="callout">
+            <strong>Key Innovation:</strong> By encoding 14 mental health features into a quantum Hilbert space of <strong>16,384 dimensions</strong> (2<sup>14</sup>), our VQC discovers non-linear symptom entanglement patterns invisible to classical models — enabling earlier, more holistic risk detection.
+          </div>
+        </div>
+      </div>
+
+      <!-- FUTURE WORK -->
+      <div class="panel">
+        <div class="panel-head">Future Work</div>
+        <div class="panel-body">
+          <ul>
+            <li>Quantum hardware execution on IBM / IonQ backends</li>
+            <li>Longitudinal tracking with temporal quantum circuits</li>
+            <li>Transfer learning for anxiety &amp; PTSD screening</li>
+            <li>Federated quantum learning for privacy-preserving analysis</li>
+            <li>Clinical validation studies with institutional partners</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- TECH STACK -->
+      <div class="panel">
+        <div class="panel-head">Technology Stack</div>
+        <div class="panel-body">
+          <div class="pills">
+            <span class="pill">PennyLane</span>
+            <span class="pill">14-Qubit VQC</span>
+            <span class="pill">Meta-Llama 3.1</span>
+            <span class="pill">Hume EVI</span>
+            <span class="pill">React 18</span>
+            <span class="pill">Vite</span>
+            <span class="pill">Tailwind CSS</span>
+            <span class="pill">Flask</span>
+            <span class="pill">NumPy</span>
+            <span class="pill">scikit-learn</span>
+            <span class="pill">Docker</span>
+            <span class="pill">Google Cloud Run</span>
+            <span class="pill">JWT</span>
+            <span class="pill">Canvas API</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <!-- END columns -->
+
+  <!-- ════════ FOOTER ════════ -->
+  <div class="poster-footer">
+    <strong>Quantum Mind</strong> &middot; Variational Quantum Classifier for Mental Health Triage &middot;
+    14 Qubits &middot; 126 Parameters &middot; 27,901 Student Records &middot; Multimodal Assessment Pipeline
+  </div>
+
+</div>
+<!-- END poster -->
+
+</body>
+</html>

@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split
 
 # CONFIGURATION (must match training)
 QUBITS = 14
-LAYERS = int(os.environ.get("QM_LAYERS", "3"))
+LAYERS = int(os.environ.get("QM_LAYERS", "5"))
 SPLIT_SEED = 42
 EVAL_TRAIN_SUBSET = int(os.environ.get("QM_EVAL_TRAIN_SUBSET", "2000"))  # 0 => full train set
 
@@ -459,8 +459,8 @@ def evaluate_model():
             "variational_layer": "StronglyEntanglingLayers",
             "measurement": "PauliZ(0) expectation",
             "optimizer": "Adam",
-            "learning_rate": 0.02,
-            "batch_size": 64,
+            "learning_rate": 0.01,
+            "batch_size": 96,
             "training_steps": training_steps,
             "loss_function": "Mean Squared Error"
         },

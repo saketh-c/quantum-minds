@@ -1,10 +1,33 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Brain, BarChart3, Atom, Network, Cpu, Database, GraduationCap, Heart, Eye, Menu, X, Zap } from 'lucide-react';
+import { Brain, BarChart3, Atom, Network, Cpu, Database, GraduationCap, Heart, Eye, Menu, X, Zap, PanelLeft, LayoutDashboard, PanelRight, Layers, Map, Gamepad2, Printer, FileSpreadsheet, BookOpen, FileText, Trello, Columns, MonitorCheck } from 'lucide-react';
 
 const NAV_ITEMS = [
     { path: '/', label: 'Home', icon: Brain, section: null },
-    { path: '/evaluation', label: 'Model Evaluation', icon: BarChart3, section: 'Analysis' },
+    { path: '/poster-left', label: 'Background & Methods', icon: PanelLeft, section: 'Poster Board' },
+    { path: '/poster-center', label: 'Results & Data', icon: LayoutDashboard, section: 'Poster Board' },
+    { path: '/poster-model', label: 'Model Deep Dive', icon: Layers, section: 'Poster Board' },
+    { path: '/poster-right', label: 'Analysis & Impact', icon: PanelRight, section: 'Poster Board' },
+    { path: '/complete-poster', label: 'Complete Poster', icon: Printer, section: 'Poster Board' },
+    { path: '/user-journey', label: 'User Journey', icon: Map, section: 'App Guide' },
+    { path: '/app-features', label: 'App Features', icon: Gamepad2, section: 'App Guide' },
+    { path: '/model-explanation', label: 'Model Explanation', icon: Brain, section: 'App Guide' },
+
+    // Academic / Print Section
+    { path: '/data-tables', label: 'Data Tables (Raw)', icon: FileSpreadsheet, section: 'Academic / Print' },
+    { path: '/academic-app-features', label: 'App Specifications', icon: FileText, section: 'Academic / Print' },
+    { path: '/academic-model-explanation', label: 'Model Circuit', icon: Layers, section: 'Academic / Print' },
+    { path: '/academic-architecture', label: 'System Topology', icon: Network, section: 'Academic / Print' },
+    { path: '/academic-evaluation', label: 'Full Evaluation Report', icon: BookOpen, section: 'Academic / Print' },
+    { path: '/academic-model-deep-dive', label: 'VQC Math & Code', icon: Cpu, section: 'Academic / Print' },
+
+    // Poster Section
+    { path: '/academic-poster-left', label: 'Poster: Intro & Methods', icon: PanelLeft, section: 'Poster Series' },
+    { path: '/academic-poster-center', label: 'Poster: Results', icon: LayoutDashboard, section: 'Poster Series' },
+    { path: '/academic-poster-right', label: 'Poster: Conclusion', icon: PanelRight, section: 'Poster Series' },
+    { path: '/academic-complete-poster', label: 'Complete Poster (3-Panel)', icon: Columns, section: 'Poster Series' },
+
+    { path: '/evaluation', label: 'Model Evaluation (Color)', icon: BarChart3, section: 'Deep Dive' },
     { path: '/quantum', label: 'Quantum Fundamentals', icon: Atom, section: 'Quantum' },
     { path: '/vqc', label: 'VQC Deep Dive', icon: Cpu, section: 'Quantum' },
     { path: '/architecture', label: 'System Architecture', icon: Network, section: 'System' },
@@ -43,11 +66,10 @@ export default function Layout({ children }) {
                                     key={item.path}
                                     to={item.path}
                                     onClick={() => setSidebarOpen(false)}
-                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                                        active
-                                            ? 'bg-qm-600 text-white shadow-md shadow-qm-600/30'
-                                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                                    }`}
+                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${active
+                                        ? 'bg-qm-600 text-white shadow-md shadow-qm-600/30'
+                                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                        }`}
                                 >
                                     <Icon className="w-4 h-4 flex-shrink-0" />
                                     <span>{item.label}</span>

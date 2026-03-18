@@ -7,10 +7,10 @@ from sklearn.model_selection import train_test_split
 
 # CONFIGURATION
 STEPS = int(os.environ.get("QM_TRAIN_STEPS", "100"))
-BATCH_SIZE = int(os.environ.get("QM_BATCH_SIZE", "64"))
+BATCH_SIZE = int(os.environ.get("QM_BATCH_SIZE", "96"))
 QUBITS = 14
-LAYERS = int(os.environ.get("QM_LAYERS", "3"))
-LEARNING_RATE = float(os.environ.get("QM_LR", "0.03"))
+LAYERS = int(os.environ.get("QM_LAYERS", "5"))
+LEARNING_RATE = float(os.environ.get("QM_LR", "0.01"))
 SPLIT_SEED = 42
 
 def train_model():

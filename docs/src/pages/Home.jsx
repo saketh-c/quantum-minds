@@ -1,6 +1,33 @@
 import { Link } from 'react-router-dom';
-import { BarChart3, Atom, Network, Cpu, Database, Zap, Heart, Eye } from 'lucide-react';
+import { BarChart3, Atom, Network, Cpu, Database, Zap, Heart, Eye, PanelLeft, LayoutDashboard, PanelRight, Map, Gamepad2, Brain, Printer } from 'lucide-react';
 import evalData from '../data/evaluationResults.json';
+
+const POSTER_SECTIONS = [
+    {
+        title: 'Background & Methods',
+        description: 'Introduction, problem statement, hypothesis, materials, methods, and experimental procedure.',
+        path: '/poster-left',
+        icon: PanelLeft,
+        color: 'from-qm-500 to-qm-700',
+        tag: 'Left Panel'
+    },
+    {
+        title: 'Results & Data',
+        description: 'Key metrics, confusion matrix, ROC/PR curves, feature importance, training loss, and dataset summary.',
+        path: '/poster-center',
+        icon: LayoutDashboard,
+        color: 'from-qm-600 to-qm-800',
+        tag: 'Center Panel'
+    },
+    {
+        title: 'Analysis & Impact',
+        description: 'Data analysis, discussion, conclusions, impact, future work, references, and acknowledgments.',
+        path: '/poster-right',
+        icon: PanelRight,
+        color: 'from-qm-700 to-qm-900',
+        tag: 'Right Panel'
+    },
+];
 
 const SECTIONS = [
     {
@@ -67,6 +94,38 @@ const SECTIONS = [
         color: 'from-sky-500 to-blue-500',
         tag: 'Vision'
     },
+    {
+        title: 'User Journey',
+        description: 'Step-by-step walkthrough of the complete user experience from login to results.',
+        path: '/user-journey',
+        icon: Map,
+        color: 'from-cyan-500 to-blue-500',
+        tag: 'UX Flow'
+    },
+    {
+        title: 'App Features',
+        description: 'Cognitive games, voice analysis, survey system, and quantum backend components.',
+        path: '/app-features',
+        icon: Gamepad2,
+        color: 'from-fuchsia-500 to-pink-500',
+        tag: 'Components'
+    },
+    {
+        title: 'Model Explanation',
+        description: 'Visual guide to quantum concepts, circuit flow, and the 14-qubit feature mapping.',
+        path: '/model-explanation',
+        icon: Brain,
+        color: 'from-purple-500 to-violet-500',
+        tag: 'Quantum ML'
+    },
+    {
+        title: 'Complete Poster',
+        description: 'Printable three-panel science fair board with all sections combined.',
+        path: '/complete-poster',
+        icon: Printer,
+        color: 'from-slate-500 to-slate-700',
+        tag: 'Print/Export'
+    }
 ];
 
 export default function Home() {
@@ -110,6 +169,35 @@ export default function Home() {
                         <div className="text-xs text-slate-400 mt-0.5">{stat.sub}</div>
                     </div>
                 ))}
+            </div>
+
+            {/* Poster Board */}
+            <h2 className="text-2xl font-bold text-slate-800 mb-4">📋 Science Fair Poster Board</h2>
+            <p className="text-sm text-slate-500 mb-6">Three-panel trifold poster with all sections needed for a professional science fair presentation.</p>
+            <div className="grid md:grid-cols-3 gap-4 mb-16">
+                {POSTER_SECTIONS.map((section) => {
+                    const Icon = section.icon;
+                    return (
+                        <Link
+                            key={section.path}
+                            to={section.path}
+                            className="group bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-6 hover:shadow-xl hover:shadow-qm-500/10 transition-all border border-slate-700 hover:border-qm-500"
+                        >
+                            <div className="flex items-start justify-between mb-4">
+                                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${section.color} flex items-center justify-center text-white shadow-lg`}>
+                                    <Icon className="w-5 h-5" />
+                                </div>
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{section.tag}</span>
+                            </div>
+                            <h3 className="text-base font-bold text-white mb-2 group-hover:text-qm-300 transition-colors">
+                                {section.title}
+                            </h3>
+                            <p className="text-xs text-slate-400 leading-relaxed">
+                                {section.description}
+                            </p>
+                        </Link>
+                    );
+                })}
             </div>
 
             {/* Section Cards */}
