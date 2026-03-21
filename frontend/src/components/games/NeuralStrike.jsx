@@ -37,6 +37,9 @@ export default function NeuralStrike({ onComplete }) {
     const gameTimerRef = useRef(null);
     const targetIdCounterRef = useRef(0);
     const feedbackRef = useRef(null);
+    const statsRef = useRef(stats);
+
+    useEffect(() => { statsRef.current = stats; }, [stats]);
 
     useEffect(() => {
         if (gameState === 'playing') {
@@ -128,7 +131,7 @@ export default function NeuralStrike({ onComplete }) {
     const endGame = () => {
         cleanup();
         setGameState('done');
-        const { hits, misses, falsePositives, reactionTimes } = stats;
+        const { hits, misses, falsePositives, reactionTimes } = statsRef.current;
         const totalAttempts = hits + misses + falsePositives;
         const accuracy = totalAttempts > 0 ? hits / totalAttempts : 0;
         const avgRT = reactionTimes.length > 0 ? reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length : 1000;

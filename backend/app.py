@@ -99,7 +99,7 @@ FEATURE_METADATA = [
     {"index": 0, "name": "Cognitive Connectivity", "category": "Neurocognitive", "description": "Focus and attention capacity measured through cognitive tasks", "source": "game"},
     {"index": 1, "name": "Memory Function", "category": "Neurocognitive", "description": "Hippocampal-dependent memory performance", "source": "game"},
     {"index": 2, "name": "Sleep Quality", "category": "Lifestyle", "description": "Sleep duration and quality patterns", "source": "survey"},
-    {"index": 3, "name": "Developmental Stage", "category": "Demographic", "description": "Age-normalized pubertal/developmental stage", "source": "estimated"},
+    {"index": 3, "name": "Developmental Stage", "category": "Demographic", "description": "Age-normalized pubertal/developmental stage", "source": "proctor"},
     {"index": 4, "name": "Anxiety Level", "category": "Emotional", "description": "Anxiety symptoms detected through voice prosody analysis", "source": "biometric"},
     {"index": 5, "name": "Social Isolation", "category": "Emotional", "description": "Social withdrawal indicators from voice analysis", "source": "biometric"},
     {"index": 6, "name": "Substance Risk", "category": "Behavioral", "description": "Risk factors for substance use", "source": "survey"},
