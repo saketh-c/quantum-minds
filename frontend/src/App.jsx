@@ -144,7 +144,8 @@ function App() {
             const response = await axios.post(`${BACKEND_URL}/predict`, {
                 features: features
             }, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 30000
             });
             setResult(response.data);
             setStep('result');
@@ -154,7 +155,7 @@ function App() {
                 alert("Session expired. Please login again.");
                 handleLogout();
             } else {
-                alert("Error contacting Quantum Core");
+                setResult({ error: true, message: err.code === 'ECONNABORTED' ? 'Request timed out. The quantum backend may be starting up — please try again.' : 'Error contacting Quantum Core. Please try again.' });
                 setStep('result');
             }
         }
@@ -290,8 +291,22 @@ function App() {
                     </div>
                 )}
 
+                {/* Error State */}
+                {step === 'result' && result?.error && (
+                    <div className="text-center mt-20 space-y-4">
+                        <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
+                            <Info className="w-8 h-8 text-destructive" />
+                        </div>
+                        <h3 className="text-xl font-display">Assessment Failed</h3>
+                        <p className="text-muted-foreground">{result.message}</p>
+                        <Button onClick={handleNewAssessment} variant="outline" className="mt-4">
+                            Try Again
+                        </Button>
+                    </div>
+                )}
+
                 {/* Results */}
-                {step === 'result' && result && (
+                {step === 'result' && result && !result.error && (
                     <div className="space-y-6">
                         {/* Confidence Alert */}
                         {result.confidence && result.confidence.level !== 'high' && (

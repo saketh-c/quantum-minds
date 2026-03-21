@@ -65,6 +65,9 @@ export default function HumeVoice({ onProsodyUpdate, onTranscriptUpdate }) {
 
                 const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
 
+                // Stop mic tracks immediately — audio data is already captured
+                mediaRecorderRef.current.stream.getTracks().forEach(t => t.stop());
+
                 try {
                     const formData = new FormData();
                     formData.append('audio', blob, 'recording.webm');
@@ -103,7 +106,6 @@ export default function HumeVoice({ onProsodyUpdate, onTranscriptUpdate }) {
                     if (onProsodyUpdate) onProsodyUpdate(simScores);
                 }
 
-                mediaRecorderRef.current.stream.getTracks().forEach(t => t.stop());
                 resolve();
             };
 

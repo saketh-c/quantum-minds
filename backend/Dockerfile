@@ -9,4 +9,4 @@ COPY . .
 
 # Gunicorn for production
 # Workers: 1 recommended for Quantum simulator to keep memory low per instance, or adjust based on CPU
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--threads", "8", "--timeout", "0", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--threads", "8", "--timeout", "120", "app:app"]

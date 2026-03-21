@@ -284,6 +284,117 @@ def predict():
         }
     })
 
+@app.route('/analyze-voice', methods=['POST'])
+def analyze_voice():
+    """
+    Receives audio blob, sends to Hume Prosody API, returns anxiety/isolation scores.
+    Falls back to simulated scores if Hume is unavailable or rate-limited.
+    """
+    logger.info("=== VOICE PROSODY ANALYSIS ===")
+
+    if not HUME_API_KEY:
+        logger.warning("Hume API key not configured, returning fallback")
+        return jsonify({"fallback": True}), 503
+
+    audio_file = request.files.get('audio')
+    if not audio_file:
+        return jsonify({"error": "No audio file provided"}), 400
+
+    try:
+        import tempfile, time
+
+        # Save audio to temp file
+        with tempfile.NamedTemporaryFile(suffix='.webm', delete=False) as tmp:
+            audio_file.save(tmp)
+            tmp_path = tmp.name
+
+        # Submit job to Hume Batch API
+        hume_url = "https://api.hume.ai/v0/batch/jobs"
+        headers = {"X-Hume-Api-Key": HUME_API_KEY}
+
+        with open(tmp_path, 'rb') as f:
+            files = {"file": ("recording.webm", f, "audio/webm")}
+            data = {"json": json.dumps({"models": {"prosody": {}}})}
+            resp = requests.post(hume_url, headers=headers, files=files, data=data, timeout=10)
+
+        os.unlink(tmp_path)
+
+        if resp.status_code == 429:
+            logger.warning("Hume rate limit hit, returning fallback")
+            return jsonify({"fallback": True}), 503
+
+        if resp.status_code not in (200, 201):
+            logger.error(f"Hume job submit failed: {resp.status_code} - {resp.text}")
+            return jsonify({"fallback": True}), 503
+
+        job_id = resp.json().get("job_id")
+        if not job_id:
+            logger.error("No job_id in Hume response")
+            return jsonify({"fallback": True}), 503
+
+        logger.info(f"Hume job submitted: {job_id}")
+
+        # Poll for results (max 30 seconds)
+        predictions_url = f"https://api.hume.ai/v0/batch/jobs/{job_id}/predictions"
+        for attempt in range(15):
+            time.sleep(2)
+            pred_resp = requests.get(predictions_url, headers=headers, timeout=10)
+
+            if pred_resp.status_code == 200:
+                results = pred_resp.json()
+                # Extract prosody emotions
+                anxiety_emotions = ["Anxiety", "Fear", "Distress"]
+                isolation_emotions = ["Sadness", "Tiredness", "Boredom"]
+
+                anxiety_score = 0.1
+                isolation_score = 0.1
+                emotion_count = 0
+
+                for source in results:
+                    for result in source.get("results", {}).get("predictions", []):
+                        for group in result.get("models", {}).get("prosody", {}).get("grouped_predictions", []):
+                            for prediction in group.get("predictions", []):
+                                emotions = {e["name"]: e["score"] for e in prediction.get("emotions", [])}
+                                emotion_count += 1
+
+                                anx_vals = [emotions.get(e, 0) for e in anxiety_emotions if e in emotions]
+                                iso_vals = [emotions.get(e, 0) for e in isolation_emotions if e in emotions]
+
+                                if anx_vals:
+                                    anxiety_score = max(anxiety_score, sum(anx_vals) / len(anx_vals))
+                                if iso_vals:
+                                    isolation_score = max(isolation_score, sum(iso_vals) / len(iso_vals))
+
+                if emotion_count > 0:
+                    logger.info(f"Hume analysis complete: anxiety={anxiety_score:.3f}, isolation={isolation_score:.3f}")
+                    return jsonify({
+                        "anxiety": min(1.0, anxiety_score),
+                        "isolation": min(1.0, isolation_score)
+                    })
+                else:
+                    logger.warning("No emotion predictions found in Hume results")
+                    return jsonify({"fallback": True}), 503
+
+            elif pred_resp.status_code == 400:
+                # Job still processing
+                continue
+            else:
+                logger.error(f"Hume predictions poll failed: {pred_resp.status_code}")
+                return jsonify({"fallback": True}), 503
+
+        logger.warning("Hume job timed out after 30 seconds")
+        return jsonify({"fallback": True}), 503
+
+    except Exception as e:
+        logger.error(f"Voice analysis error: {str(e)}", exc_info=True)
+        # Clean up temp file if it exists
+        try:
+            os.unlink(tmp_path)
+        except:
+            pass
+        return jsonify({"fallback": True}), 503
+
+
 @app.route('/hume/token', methods=['POST'])
 def hume_token():
     """
