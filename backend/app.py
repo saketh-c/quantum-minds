@@ -62,7 +62,7 @@ def login():
 
 # CONFIG
 QUBITS = 14
-LAYERS = int(os.environ.get("QM_LAYERS", "5"))
+LAYERS = int(os.environ.get("QM_LAYERS", "6"))
 # Try multiple possible paths for weights file
 WEIGHTS_PATHS = ['quantum_weights.npy', 'backend/quantum_weights.npy', '/app/quantum_weights.npy', '/app/backend/quantum_weights.npy']
 HUME_API_KEY = os.environ.get('HUME_API_KEY')

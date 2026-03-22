@@ -6,15 +6,15 @@ import json
 from sklearn.model_selection import train_test_split
 
 # CONFIGURATION
-STEPS = int(os.environ.get("QM_TRAIN_STEPS", "100"))
-BATCH_SIZE = int(os.environ.get("QM_BATCH_SIZE", "96"))
+STEPS = int(os.environ.get("QM_TRAIN_STEPS", "1000"))
+BATCH_SIZE = int(os.environ.get("QM_BATCH_SIZE", "128"))
 QUBITS = 14
-LAYERS = int(os.environ.get("QM_LAYERS", "5"))
+LAYERS = int(os.environ.get("QM_LAYERS", "6"))
 LEARNING_RATE = float(os.environ.get("QM_LR", "0.01"))
 SPLIT_SEED = 42
 
 def train_model():
-    data_path = 'backend/synthetic_clinical_data.csv'
+    data_path = 'backend/kaggle_processed.csv'
     if not os.path.exists(data_path):
         print("Data not found.")
         return
@@ -57,12 +57,25 @@ def train_model():
         qml.StronglyEntanglingLayers(weights, wires=range(QUBITS))
         return qml.expval(qml.PauliZ(0))
 
-    weights = np.random.random((LAYERS, QUBITS, 3), requires_grad=True)
+    # Resume from existing weights if available, otherwise random init
+    weights_path = 'backend/quantum_weights.npy'
+    if not os.path.exists(weights_path):
+        weights_path = 'quantum_weights.npy'
+    if os.path.exists(weights_path):
+        print(f"Resuming from existing weights: {weights_path}")
+        weights = np.array(np.load(weights_path), requires_grad=True)
+    else:
+        print("No existing weights found, using random initialization")
+        weights = np.random.random((LAYERS, QUBITS, 3), requires_grad=True)
 
     def cost(weights, x_batch, y_batch):
-        # predictions list of tensor (1,) -> stack to (batch,)
         preds = np.stack([circuit(weights, x) for x in x_batch])
-        return np.mean((preds - y_batch) ** 2)
+        # Binary cross-entropy: map [-1,1] to [0,1] probabilities
+        probs = (preds + 1) / 2
+        labels = (y_batch + 1) / 2
+        eps = 1e-7
+        probs = np.clip(probs, eps, 1 - eps)
+        return -np.mean(labels * np.log(probs) + (1 - labels) * np.log(1 - probs))
 
     # Adam is better for escaping barren plateaus in VQCs
     opt = qml.AdamOptimizer(stepsize=LEARNING_RATE)
@@ -71,13 +84,18 @@ def train_model():
     training_history = {"steps": [], "losses": []}
 
     for i in range(STEPS):
+        # Learning rate decay at midpoint
+        if i == STEPS // 2:
+            opt = qml.AdamOptimizer(stepsize=LEARNING_RATE / 2)
+            print(f"Step {i}: Reducing learning rate to {LEARNING_RATE / 2}")
+
         # Random batch sampling
         indices = np.random.randint(0, len(X_train), BATCH_SIZE)
         X_batch = X_train[indices]
         Y_batch = Y_train[indices]
-        
+
         weights, loss_val = opt.step_and_cost(lambda w: cost(w, X_batch, Y_batch), weights)
-        
+
         training_history["steps"].append(i)
         training_history["losses"].append(float(loss_val))
 

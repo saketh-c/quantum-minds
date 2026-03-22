@@ -38,7 +38,7 @@ def load_model_and_data():
     if weights is None:
         raise FileNotFoundError("No weights file found. Train model first with train_vqc.py")
 
-    data_paths = ['backend/synthetic_clinical_data.csv', 'synthetic_clinical_data.csv']
+    data_paths = ['backend/kaggle_processed.csv', 'kaggle_processed.csv', 'backend/synthetic_clinical_data.csv', 'synthetic_clinical_data.csv']
     df = None
     for path in data_paths:
         if os.path.exists(path):
@@ -96,7 +96,7 @@ def run_predictions(weights, X_test, Y_test):
         exp_val = circuit(weights, x)
         prob = float((exp_val + 1) / 2)
         probabilities.append(prob)
-        predictions.append(1 if prob >= 0.5 else 0)
+        predictions.append(1 if prob >= 0.45 else 0)
 
         if (i + 1) % 100 == 0 or (i + 1) == total:
             pct = (i + 1) / total * 100
@@ -254,7 +254,7 @@ def compute_feature_importance(weights, X_test, Y_test, probabilities, baseline_
     for x in X_sub:
         exp_val = circuit(weights, x)
         prob = float((exp_val + 1) / 2)
-        base_preds.append(1 if prob >= 0.5 else 0)
+        base_preds.append(1 if prob >= 0.45 else 0)
     base_acc = float(accuracy_score(Y_sub, base_preds))
 
     importances = []
@@ -266,7 +266,7 @@ def compute_feature_importance(weights, X_test, Y_test, probabilities, baseline_
         for x in X_permuted:
             exp_val = circuit(weights, x)
             prob = float((exp_val + 1) / 2)
-            perm_preds.append(1 if prob >= 0.5 else 0)
+            perm_preds.append(1 if prob >= 0.45 else 0)
 
         perm_acc = float(accuracy_score(Y_sub, perm_preds))
         drop = base_acc - perm_acc
