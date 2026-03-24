@@ -421,7 +421,6 @@ def hume_token():
     try:
         # Basic Auth is standard for Client Creds
         resp = requests.post(token_url, auth=auth, data=data)
-        
         logger.info(f"Hume Token Response - Status: {resp.status_code}")
         
         if resp.status_code == 200:
