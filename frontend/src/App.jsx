@@ -60,10 +60,11 @@ function StepIndicator({ currentStep }) {
 }
 
 function App() {
-    const [token, setToken] = useState(localStorage.getItem('token'));
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [loginError, setLoginError] = useState('');
+    // Auth disabled — commented out for demo
+    // const [token, setToken] = useState(localStorage.getItem('token'));
+    // const [username, setUsername] = useState('');
+    // const [password, setPassword] = useState('');
+    // const [loginError, setLoginError] = useState('');
 
     const [step, setStep] = useState('intro');
     const [focusScore, setFocusScore] = useState(0.5);
@@ -71,22 +72,9 @@ function App() {
     const [surveyData, setSurveyData] = useState(null);
     const [result, setResult] = useState(null);
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        setLoginError('');
-        try {
-            const response = await axios.post(`${BACKEND_URL}/login`, { username, password });
-            const access_token = response.data.access_token;
-            setToken(access_token);
-            localStorage.setItem('token', access_token);
-        } catch (err) {
-            setLoginError('Invalid credentials');
-        }
-    };
+    // const handleLogin = async (e) => { ... };
 
     const handleLogout = () => {
-        setToken(null);
-        localStorage.removeItem('token');
         setStep('intro');
         setFocusScore(0.5);
         setMemoryScore(0.5);
@@ -144,20 +132,14 @@ function App() {
             const response = await axios.post(`${BACKEND_URL}/predict`, {
                 features: features
             }, {
-                headers: { Authorization: `Bearer ${token}` },
                 timeout: 30000
             });
             setResult(response.data);
             setStep('result');
         } catch (err) {
             console.error(err);
-            if (err.response && err.response.status === 401) {
-                alert("Session expired. Please login again.");
-                handleLogout();
-            } else {
-                setResult({ error: true, message: err.code === 'ECONNABORTED' ? 'Request timed out. The quantum backend may be starting up — please try again.' : 'Error contacting Quantum Core. Please try again.' });
-                setStep('result');
-            }
+            setResult({ error: true, message: err.code === 'ECONNABORTED' ? 'Request timed out. The quantum backend may be starting up — please try again.' : 'Error contacting Quantum Core. Please try again.' });
+            setStep('result');
         }
     };
 
@@ -169,60 +151,8 @@ function App() {
         setResult(null);
     };
 
-    // Login Screen
-    if (!token) {
-        return (
-            <div className="min-h-screen bg-background flex items-center justify-center p-4">
-                <Card className="w-full max-w-md">
-                    <CardHeader className="text-center">
-                        <div className="flex justify-center mb-4">
-                            <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center">
-                                <ShieldCheck className="w-7 h-7 text-primary" />
-                            </div>
-                        </div>
-                        <CardTitle className="text-2xl font-display">Quantum Mind</CardTitle>
-                        <CardDescription>Authenticate to access the assessment platform.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={handleLogin} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="username">Username</Label>
-                                <input
-                                    id="username"
-                                    type="text"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                    placeholder="Enter username"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="password">Password</Label>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                    placeholder="Enter password"
-                                />
-                            </div>
-
-                            {loginError && (
-                                <Alert variant="destructive">
-                                    <AlertDescription>{loginError}</AlertDescription>
-                                </Alert>
-                            )}
-
-                            <Button type="submit" className="w-full" size="lg">
-                                Login
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
-            </div>
-        );
-    }
+    // Login screen disabled for demo
+    // if (!token) { ... }
 
     return (
         <div className="min-h-screen bg-background text-foreground font-sans">
@@ -234,7 +164,7 @@ function App() {
                         <h1 className="text-lg font-semibold">Quantum Mind</h1>
                     </div>
                     <StepIndicator currentStep={step} />
-                    <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
+                    <Button variant="ghost" size="icon" onClick={handleLogout} title="Reset">
                         <LogOut className="w-4 h-4" />
                     </Button>
                 </div>

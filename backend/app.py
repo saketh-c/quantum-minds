@@ -8,8 +8,8 @@ from together import Together
 import logging
 import json
 
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required
-from datetime import timedelta
+# from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+# from datetime import timedelta
 
 # Configure logging
 logging.basicConfig(
@@ -37,25 +37,23 @@ CORS(app,
 # Remove the manual after_request handler to avoid duplicate CORS headers
 # Flask-CORS already handles all CORS headers automatically
 
-# Configuration
-app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'super-secret-key-change-this')
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
-jwt = JWTManager(app)
-
-# Hardcoded User
-ADMIN_USER = "admin"
-ADMIN_PASS = "password"
-
-@app.route('/login', methods=['POST'])
-def login():
-    username = request.json.get('username', None)
-    password = request.json.get('password', None)
-    
-    if username == ADMIN_USER and password == ADMIN_PASS:
-        access_token = create_access_token(identity=username)
-        return jsonify(access_token=access_token), 200
-    else:
-        return jsonify({"msg": "Bad username or password"}), 401
+# # Configuration (auth disabled)
+# app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'super-secret-key-change-this')
+# app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+# jwt = JWTManager(app)
+#
+# ADMIN_USER = "admin"
+# ADMIN_PASS = "password"
+#
+# @app.route('/login', methods=['POST'])
+# def login():
+#     username = request.json.get('username', None)
+#     password = request.json.get('password', None)
+#     if username == ADMIN_USER and password == ADMIN_PASS:
+#         access_token = create_access_token(identity=username)
+#         return jsonify(access_token=access_token), 200
+#     else:
+#         return jsonify({"msg": "Bad username or password"}), 401
 
 
 
@@ -135,7 +133,7 @@ def health():
     return jsonify({"status": "healthy", "quantum_backend": "online"})
 
 @app.route('/predict', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def predict():
     """
     Expects JSON: { "features": [0.1, 0.5, ... 14 items] }
@@ -543,7 +541,7 @@ def hume_token():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/analyze_transcript', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def analyze_transcript():
     """
     Analyzes transcript using Together API (Llama 3) to extract health ratings.
