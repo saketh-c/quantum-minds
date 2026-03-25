@@ -38,7 +38,7 @@ def load_model_and_data():
     if weights is None:
         raise FileNotFoundError("No weights file found. Train model first with train_vqc.py")
 
-    data_paths = ['backend/kaggle_processed.csv', 'kaggle_processed.csv', 'backend/synthetic_clinical_data.csv', 'synthetic_clinical_data.csv']
+    data_paths = ['backend/synthetic_clinical_data.csv', 'synthetic_clinical_data.csv']
     df = None
     for path in data_paths:
         if os.path.exists(path):

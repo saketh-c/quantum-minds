@@ -14,7 +14,7 @@ LEARNING_RATE = float(os.environ.get("QM_LR", "0.01"))
 SPLIT_SEED = 42
 
 def train_model():
-    data_path = 'backend/kaggle_processed.csv'
+    data_path = 'backend/synthetic_clinical_data.csv'
     if not os.path.exists(data_path):
         print("Data not found.")
         return
