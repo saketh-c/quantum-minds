@@ -27,6 +27,7 @@ import AcademicPosterCenter from './pages/AcademicPosterCenter';
 import AcademicPosterRight from './pages/AcademicPosterRight';
 import AcademicCompletePoster from './pages/AcademicCompletePoster';
 import AcademicModelDeepDive from './pages/AcademicModelDeepDive';
+import ComprehensiveAnalysis from './pages/ComprehensiveAnalysis';
 
 export default function App() {
     return (
@@ -59,6 +60,7 @@ export default function App() {
                 <Route path="/academic-poster-right" element={<AcademicPosterRight />} />
                 <Route path="/academic-complete-poster" element={<AcademicCompletePoster />} />
                 <Route path="/academic-model-deep-dive" element={<AcademicModelDeepDive />} />
+                <Route path="/comprehensive-analysis" element={<ComprehensiveAnalysis />} />
             </Routes>
         </Layout>
     );

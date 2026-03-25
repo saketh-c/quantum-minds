@@ -27,6 +27,7 @@ const NAV_ITEMS = [
     { path: '/academic-poster-right', label: 'Poster: Conclusion', icon: PanelRight, section: 'Poster Series' },
     { path: '/academic-complete-poster', label: 'Complete Poster (3-Panel)', icon: Columns, section: 'Poster Series' },
 
+    { path: '/comprehensive-analysis', label: 'Comprehensive Analysis', icon: BarChart3, section: 'Deep Dive' },
     { path: '/evaluation', label: 'Model Evaluation (Color)', icon: BarChart3, section: 'Deep Dive' },
     { path: '/quantum', label: 'Quantum Fundamentals', icon: Atom, section: 'Quantum' },
     { path: '/vqc', label: 'VQC Deep Dive', icon: Cpu, section: 'Quantum' },
