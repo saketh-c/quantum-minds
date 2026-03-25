@@ -350,6 +350,29 @@ function App() {
                                     } className="mt-1">
                                         {result.risk_tier} Risk
                                     </Badge>
+                                    {/* Risk Trajectory */}
+                                    {result.tier_context && (
+                                        <div className="mt-3 pt-3 border-t border-border">
+                                            <div className="flex h-1 rounded-full overflow-hidden">
+                                                <div className="flex-[40] bg-green-500/60" />
+                                                <div className="flex-[30] bg-yellow-500/60" />
+                                                <div className="flex-[15] bg-orange-500/60" />
+                                                <div className="flex-[15] bg-red-500/60" />
+                                            </div>
+                                            <div className="relative h-2 -mt-1.5">
+                                                <div className="absolute w-2.5 h-2.5 bg-white rounded-full shadow-sm shadow-white/50 -translate-x-1/2"
+                                                    style={{ left: `${Math.min(100, result.risk_probability * 100)}%` }} />
+                                            </div>
+                                            <div className="flex justify-between text-[10px] mt-1">
+                                                {result.tier_context.prev_tier_name && (
+                                                    <span className="text-green-500">{result.tier_context.points_above_prev_tier}pts above {result.tier_context.prev_tier_name}</span>
+                                                )}
+                                                {result.tier_context.next_tier_name && (
+                                                    <span className="text-red-500 ml-auto">{result.tier_context.points_to_next_tier}pts from {result.tier_context.next_tier_name}</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
 
@@ -388,34 +411,156 @@ function App() {
                             </Alert>
                         )}
 
-                        {/* Summary */}
-                        {result.summary && (
+                        {/* Feature Contributions */}
+                        {result.feature_contributions && result.feature_contributions.length > 0 && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                        <Activity className="w-4 h-4 text-primary" />
+                                        Feature Contributions
+                                    </CardTitle>
+                                    <CardDescription>Gradient-based attribution from the quantum circuit</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-xs text-red-500 uppercase tracking-wider font-semibold mb-3">Risk Drivers</p>
+                                            <div className="space-y-2">
+                                                {result.feature_contributions
+                                                    .filter(c => c.direction === 'risk' && c.contribution_pct > 2)
+                                                    .map((c, i) => (
+                                                        <div key={i} className="p-2.5 rounded-lg bg-red-500/5 border-l-3 border-red-500">
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-sm font-medium">{c.name}</span>
+                                                                <span className="text-xs text-red-500 font-mono">+{c.contribution_pct}%</span>
+                                                            </div>
+                                                            <p className="text-xs text-muted-foreground">Score: {c.rating}/5</p>
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-green-500 uppercase tracking-wider font-semibold mb-3">Protective Factors</p>
+                                            <div className="space-y-2">
+                                                {result.feature_contributions
+                                                    .filter(c => c.direction === 'protective' && c.contribution_pct > 2)
+                                                    .map((c, i) => (
+                                                        <div key={i} className="p-2.5 rounded-lg bg-green-500/5 border-l-3 border-green-500">
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-sm font-medium">{c.name}</span>
+                                                                <span className="text-xs text-green-500 font-mono">-{c.contribution_pct}%</span>
+                                                            </div>
+                                                            <p className="text-xs text-muted-foreground">Score: {c.rating}/5</p>
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {/* Data Source Transparency */}
+                        {result.feature_report && (
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="text-base flex items-center gap-2">
                                         <Info className="w-4 h-4 text-primary" />
-                                        Assessment Summary
+                                        Data Sources
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                        <div className="text-center">
-                                            <p className="text-2xl font-bold">{result.summary.measured_features}</p>
-                                            <p className="text-xs text-muted-foreground">Measured</p>
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="text-2xl font-bold">{result.summary.estimated_features}</p>
-                                            <p className="text-xs text-muted-foreground">Estimated</p>
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="text-2xl font-bold">{result.summary.average_rating?.toFixed(1)}</p>
-                                            <p className="text-xs text-muted-foreground">Avg Rating</p>
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="text-2xl font-bold text-destructive">{result.summary.concerning_features}</p>
-                                            <p className="text-xs text-muted-foreground">Concerning</p>
-                                        </div>
-                                    </div>
+                                    {(() => {
+                                        const sources = result.feature_report.reduce((acc, f) => {
+                                            const key = f.source === 'game' || f.source === 'survey' ? 'measured' :
+                                                        f.source === 'biometric' ? 'biometric' :
+                                                        f.source === 'proctor' ? 'proctor' : 'estimated';
+                                            acc[key] = (acc[key] || 0) + 1;
+                                            return acc;
+                                        }, {});
+                                        const total = 14;
+                                        const items = [
+                                            { label: 'Game/Survey', count: sources.measured || 0, color: '#22c55e' },
+                                            { label: 'Voice Biometric', count: sources.biometric || 0, color: '#3b82f6' },
+                                            { label: 'Proctor Input', count: sources.proctor || 0, color: '#f59e0b' },
+                                            { label: 'Estimated', count: sources.estimated || 0, color: '#6b7280' },
+                                        ].filter(i => i.count > 0);
+
+                                        let offset = 0;
+                                        const circumference = 2 * Math.PI * 15.915;
+
+                                        return (
+                                            <div className="flex items-center gap-8">
+                                                <div className="relative w-24 h-24 flex-shrink-0">
+                                                    <svg viewBox="0 0 36 36" className="w-24 h-24 -rotate-90">
+                                                        {items.map((item, i) => {
+                                                            const pct = (item.count / total) * 100;
+                                                            const dashArray = `${pct} ${100 - pct}`;
+                                                            const dashOffset = -offset;
+                                                            offset += pct;
+                                                            return (
+                                                                <circle key={i} cx="18" cy="18" r="15.915" fill="none"
+                                                                    stroke={item.color} strokeWidth="3"
+                                                                    strokeDasharray={dashArray}
+                                                                    strokeDashoffset={dashOffset} />
+                                                            );
+                                                        })}
+                                                    </svg>
+                                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                                        <span className="text-lg font-bold">{total}</span>
+                                                        <span className="text-[8px] text-muted-foreground">features</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex-1 space-y-2">
+                                                    {items.map((item, i) => (
+                                                        <div key={i} className="flex items-center gap-2 text-sm">
+                                                            <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ background: item.color }} />
+                                                            <span className="text-muted-foreground">{item.count} {item.label}</span>
+                                                            <span className="text-muted-foreground/50 ml-auto text-xs">{Math.round((item.count / total) * 100)}%</span>
+                                                        </div>
+                                                    ))}
+                                                    {result.summary && (
+                                                        <div className="pt-1 border-t border-border text-xs text-destructive">
+                                                            {result.summary.concerning_features} concerning features
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {/* Concerning Features with Clinical Notes */}
+                        {result.clinical_notes && result.clinical_notes.length > 0 && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                        <AlertTriangle className="w-4 h-4 text-destructive" />
+                                        Concerning Features
+                                    </CardTitle>
+                                    <CardDescription>AI-generated clinical context for flagged indicators</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    {result.clinical_notes.map((note, i) => {
+                                        const feature = result.feature_report?.find(f => f.name === note.feature_name);
+                                        return (
+                                            <div key={i} className="p-3 rounded-lg border border-destructive/20 bg-destructive/5">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="font-semibold text-sm">{note.feature_name}</span>
+                                                    {feature && (
+                                                        <span className="text-sm font-bold text-red-600">{feature.rating}/5</span>
+                                                    )}
+                                                </div>
+                                                <p className="text-sm text-muted-foreground">{note.plain_note}</p>
+                                                <details className="mt-2">
+                                                    <summary className="text-xs text-primary cursor-pointer hover:underline">Show Clinical Details</summary>
+                                                    <p className="text-xs text-muted-foreground mt-1 pl-3 border-l-2 border-primary/30 italic">{note.clinical_note}</p>
+                                                </details>
+                                            </div>
+                                        );
+                                    })}
                                 </CardContent>
                             </Card>
                         )}
@@ -498,7 +643,7 @@ function App() {
                                 <CardTitle className="text-sm text-muted-foreground">Technical Details</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono text-muted-foreground">
+                                <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-xs font-mono text-muted-foreground">
                                     <div>
                                         <p className="mb-1">Z-Expectation</p>
                                         <p className="font-semibold text-foreground">{result.quantum_raw?.toFixed(6)}</p>
@@ -510,6 +655,18 @@ function App() {
                                     <div>
                                         <p className="mb-1">Depression Prob</p>
                                         <p className="font-semibold text-foreground">{result.depression_probability?.toFixed(4)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="mb-1">Threshold</p>
+                                        <p className="font-semibold text-foreground">{result.decision_threshold ?? 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="mb-1">Confidence</p>
+                                        <p className="font-semibold text-foreground">
+                                            {result.confidence_band
+                                                ? `${(result.risk_probability * 100).toFixed(1)}% ± ${(result.confidence_band.spread / 2).toFixed(1)}%`
+                                                : 'N/A'}
+                                        </p>
                                     </div>
                                 </div>
                             </CardContent>

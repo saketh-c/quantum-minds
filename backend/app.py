@@ -155,14 +155,53 @@ def predict():
 
     # Ensure float
     x = np.array(features, dtype=float)
-    
+
     # Run Quantum Circuit
     # Expectation Z is between -1 and 1
     exp_val = circuit(weights, x)
-    
+
     # Map to Probability [0, 1]
     # P(Risk) = (Z + 1) / 2
     risk_prob = (exp_val + 1) / 2
+
+    # Feature 1: Gradient-based attribution
+    grad_fn = qml.grad(circuit, argnum=1)
+    try:
+        grads = grad_fn(weights, x)
+        # Signed contribution = gradient * feature value
+        contributions = [float(grads[i]) * float(x[i]) for i in range(len(x))]
+        total_abs = sum(abs(c) for c in contributions) or 1.0
+        feature_contributions = []
+        for i, meta in enumerate(FEATURE_METADATA):
+            pct = (contributions[i] / total_abs) * 100
+            feature_contributions.append({
+                "name": meta["name"],
+                "value": float(x[i]),
+                "rating": max(1, min(5, round(float(x[i]) * 4 + 1))),
+                "contribution_pct": round(abs(pct), 1),
+                "direction": "risk" if pct > 0 else "protective"
+            })
+        feature_contributions.sort(key=lambda c: c["contribution_pct"], reverse=True)
+    except Exception as e:
+        logger.warning(f"Gradient attribution failed: {e}")
+        feature_contributions = []
+
+    # Feature 5: Confidence band via weight perturbation
+    try:
+        perturbed_probs = []
+        for _ in range(5):
+            noise = np.random.normal(0, 0.01, weights.shape)
+            perturbed_weights = weights + noise
+            p_exp = circuit(perturbed_weights, x)
+            perturbed_probs.append(float((p_exp + 1) / 2))
+        confidence_band = {
+            "low": round(min(perturbed_probs) * 100, 1),
+            "high": round(max(perturbed_probs) * 100, 1),
+            "spread": round((max(perturbed_probs) - min(perturbed_probs)) * 100, 1)
+        }
+    except Exception as e:
+        logger.warning(f"Confidence band computation failed: {e}")
+        confidence_band = {"low": 0, "high": 0, "spread": 0}
     
     # Calculate depression probability
     # Since model was trained on depression data, use risk as base
@@ -210,7 +249,31 @@ def predict():
     if risk_prob > 0.4: tier = "Moderate"
     if risk_prob > 0.7: tier = "High"
     if risk_prob > 0.85: tier = "Crisis"
-    
+
+    # Feature 2: Tier context for trajectory indicator
+    risk_pct = float(risk_prob * 100)
+    tier_boundaries = [
+        ("Low", 0, 40, "Moderate"),
+        ("Moderate", 40, 70, "High"),
+        ("High", 70, 85, "Crisis"),
+        ("Crisis", 85, 100, None),
+    ]
+    tier_context = {}
+    for t_name, t_min, t_max, t_next in tier_boundaries:
+        if t_name == tier:
+            prev_idx = tier_boundaries.index((t_name, t_min, t_max, t_next)) - 1
+            prev_name = tier_boundaries[prev_idx][0] if prev_idx >= 0 else None
+            tier_context = {
+                "current_tier": t_name,
+                "tier_min": t_min,
+                "tier_max": t_max,
+                "points_to_next_tier": round(t_max - risk_pct, 1) if t_next else 0,
+                "next_tier_name": t_next,
+                "points_above_prev_tier": round(risk_pct - t_min, 1),
+                "prev_tier_name": prev_name,
+            }
+            break
+
     # Severity Assessment
     severity = get_severity_level(risk_prob, depression_prob)
     
@@ -254,6 +317,40 @@ def predict():
             "source": meta["source"]
         })
 
+    # Feature 3: LLM-generated clinical notes for concerning features
+    clinical_notes = []
+    concerning = [f for f in feature_report if f["health_indicator"] == "concerning"]
+    if concerning:
+        try:
+            api_key = os.environ.get("TOGETHER_API_KEY")
+            if api_key:
+                client = Together(api_key=api_key)
+                features_text = "\n".join([f"- {f['name']}: {f['rating']}/5 ({f['description']})" for f in concerning])
+                prompt = f"""For each concerning mental health screening feature below, provide:
+1. A brief plain-language explanation (1 sentence, accessible to non-clinicians)
+2. A clinical note referencing DSM-5 criteria (1 sentence, for mental health professionals)
+
+Features:
+{features_text}
+
+Respond in JSON array format: [{{"feature_name": "...", "plain_note": "...", "clinical_note": "..."}}]
+Only return the JSON array, no other text."""
+
+                resp = client.chat.completions.create(
+                    model="meta-llama/Llama-3-70b-chat-hf",
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=1000,
+                    temperature=0.3,
+                )
+                raw = resp.choices[0].message.content.strip()
+                # Extract JSON from response
+                if '[' in raw:
+                    raw = raw[raw.index('['):raw.rindex(']')+1]
+                clinical_notes = json.loads(raw)
+        except Exception as e:
+            logger.warning(f"Clinical notes generation failed: {e}")
+            clinical_notes = []
+
     return jsonify({
         # Core predictions
         "risk_probability": float(risk_prob),
@@ -261,19 +358,30 @@ def predict():
         "risk_tier": tier,
         "depression_probability": float(depression_prob),
         "depression_percentage": float(depression_prob * 100),
-        
+
         # Severity assessment
         "severity": severity,
 
         # Confidence assessment
         "confidence": confidence,
-        
+
         # Technical details
         "quantum_raw": float(exp_val),
-        
+        "decision_threshold": 0.45,
+        "confidence_band": confidence_band,
+
+        # Feature contributions (gradient-based)
+        "feature_contributions": feature_contributions,
+
+        # Risk trajectory context
+        "tier_context": tier_context,
+
+        # Clinical notes for concerning features
+        "clinical_notes": clinical_notes,
+
         # Comprehensive feature breakdown
         "feature_report": feature_report,
-        
+
         # Summary statistics
         "summary": {
             "total_features": 14,
