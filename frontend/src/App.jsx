@@ -238,14 +238,6 @@ function App() {
                 {/* Results */}
                 {step === 'result' && result && !result.error && (
                     <div className="space-y-6">
-                        {/* Confidence Alert */}
-                        {result.confidence && result.confidence.level !== 'high' && (
-                            <Alert variant={result.confidence.level === 'low' ? 'destructive' : 'default'}>
-                                <Info className="h-4 w-4" />
-                                <AlertTitle>Assessment Confidence: {result.confidence.level}</AlertTitle>
-                                <AlertDescription>{result.confidence.note}</AlertDescription>
-                            </Alert>
-                        )}
 
                         {/* Main Metric Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
