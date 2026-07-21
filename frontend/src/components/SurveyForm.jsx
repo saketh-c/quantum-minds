@@ -17,8 +17,8 @@ const QUESTIONS = [
     {
         id: 'substance',
         label: 'Substance Risk',
-        description: 'Any use of alcohol, tobacco, or other substances?',
-        options: ['Daily use', 'Weekly use', 'Occasional', 'Rarely', 'Never'],
+        description: 'How often do you use alcohol, tobacco, or other substances?',
+        options: ['Never', 'Rarely', 'Occasional', 'Weekly use', 'Daily use'],
     },
     {
         id: 'diet',
@@ -30,7 +30,7 @@ const QUESTIONS = [
         id: 'academic',
         label: 'Academic Pressure',
         description: 'How much stress do you feel from school or academic work?',
-        options: ['Overwhelming', 'High', 'Moderate', 'Low', 'None'],
+        options: ['None', 'Low', 'Moderate', 'High', 'Overwhelming'],
     },
 ];
 

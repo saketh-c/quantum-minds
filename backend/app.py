@@ -108,21 +108,31 @@ def load_weights():
 weights = load_weights()
 
 # Feature metadata for holistic reporting
+# "direction" records what a HIGH value means for each feature, taken from the
+# risk formula the training labels were generated with
+# (generate_synthetic_data.py). Features entering that formula as `x` raise
+# risk, so lower is better; those entering as `(1 - x)` lower risk, so higher is
+# better. Developmental Stage does not appear at all and is not a health
+# judgement, so it is neutral.
+#
+# This must not be inferred from "category" -- doing so mislabels Academic
+# Pressure, Family History, and Bullying Exposure, where a low value is good but
+# the category ("Environmental", "Genetic") suggests otherwise.
 FEATURE_METADATA = [
-    {"index": 0, "name": "Cognitive Connectivity", "category": "Neurocognitive", "description": "Focus and attention capacity measured through cognitive tasks", "source": "game"},
-    {"index": 1, "name": "Memory Function", "category": "Neurocognitive", "description": "Hippocampal-dependent memory performance", "source": "game"},
-    {"index": 2, "name": "Sleep Quality", "category": "Lifestyle", "description": "Sleep duration and quality patterns", "source": "survey"},
-    {"index": 3, "name": "Developmental Stage", "category": "Demographic", "description": "Age-normalized pubertal/developmental stage", "source": "proctor"},
-    {"index": 4, "name": "Anxiety Level", "category": "Emotional", "description": "Anxiety symptoms detected through voice prosody analysis", "source": "biometric"},
-    {"index": 5, "name": "Social Isolation", "category": "Emotional", "description": "Social withdrawal indicators from voice analysis", "source": "biometric"},
-    {"index": 6, "name": "Substance Risk", "category": "Behavioral", "description": "Risk factors for substance use", "source": "survey"},
-    {"index": 7, "name": "Diet Quality", "category": "Lifestyle", "description": "Nutritional habits and dietary patterns", "source": "survey"},
-    {"index": 8, "name": "Academic Pressure", "category": "Environmental", "description": "Perceived academic stress and workload", "source": "survey"},
-    {"index": 9, "name": "Family History", "category": "Genetic", "description": "Family history of mental health conditions", "source": "estimated"},
-    {"index": 10, "name": "Bullying Exposure", "category": "Environmental", "description": "Exposure to bullying or peer victimization", "source": "estimated"},
-    {"index": 11, "name": "Safety Perception", "category": "Environmental", "description": "Perceived safety in environment", "source": "estimated"},
-    {"index": 12, "name": "Social Monitoring", "category": "Environmental", "description": "Level of social support and monitoring", "source": "estimated"},
-    {"index": 13, "name": "Physical Activity", "category": "Lifestyle", "description": "Exercise and physical activity levels", "source": "estimated"},
+    {"index": 0, "name": "Cognitive Connectivity", "category": "Neurocognitive", "description": "Focus and attention capacity measured through cognitive tasks", "source": "game", "direction": "higher_better"},
+    {"index": 1, "name": "Memory Function", "category": "Neurocognitive", "description": "Hippocampal-dependent memory performance", "source": "game", "direction": "higher_better"},
+    {"index": 2, "name": "Sleep Quality", "category": "Lifestyle", "description": "Sleep duration and quality patterns", "source": "survey", "direction": "higher_better"},
+    {"index": 3, "name": "Developmental Stage", "category": "Demographic", "description": "Age-normalized pubertal/developmental stage", "source": "proctor", "direction": "neutral"},
+    {"index": 4, "name": "Anxiety Level", "category": "Emotional", "description": "Anxiety symptoms detected through voice prosody analysis", "source": "biometric", "direction": "lower_better"},
+    {"index": 5, "name": "Social Isolation", "category": "Emotional", "description": "Social withdrawal indicators from voice analysis", "source": "biometric", "direction": "lower_better"},
+    {"index": 6, "name": "Substance Risk", "category": "Behavioral", "description": "Frequency of alcohol, tobacco, or other substance use", "source": "survey", "direction": "lower_better"},
+    {"index": 7, "name": "Diet Quality", "category": "Lifestyle", "description": "Nutritional habits and dietary patterns", "source": "survey", "direction": "higher_better"},
+    {"index": 8, "name": "Academic Pressure", "category": "Environmental", "description": "Perceived academic stress and workload", "source": "survey", "direction": "lower_better"},
+    {"index": 9, "name": "Family History", "category": "Genetic", "description": "Family history of mental health conditions", "source": "estimated", "direction": "lower_better"},
+    {"index": 10, "name": "Bullying Exposure", "category": "Environmental", "description": "Exposure to bullying or peer victimization", "source": "estimated", "direction": "lower_better"},
+    {"index": 11, "name": "Safety Perception", "category": "Environmental", "description": "Perceived safety in environment (higher is safer)", "source": "estimated", "direction": "higher_better"},
+    {"index": 12, "name": "Social Monitoring", "category": "Environmental", "description": "Level of social support and monitoring", "source": "estimated", "direction": "higher_better"},
+    {"index": 13, "name": "Physical Activity", "category": "Lifestyle", "description": "Exercise and physical activity levels", "source": "estimated", "direction": "higher_better"},
 ]
 
 def convert_to_rating(value):
@@ -182,8 +192,24 @@ def predict():
     grad_fn = qml.grad(circuit, argnums=1)
     try:
         grads = grad_fn(weights, x)
-        # Signed contribution = gradient * feature value
-        contributions = [float(grads[i]) * float(x[i]) for i in range(len(x))]
+        # Magnitude comes from how sensitive the circuit is to the feature,
+        # scaled by how far the value sits from the 0.5 neutral point. Sign
+        # comes from whether that deviation is on the harmful side for this
+        # feature.
+        #
+        # The earlier `gradient * value` form had two defects: a feature at 0
+        # always scored exactly 0 no matter how important it was (so a maximally
+        # unsafe student showed no safety contribution), and the sign tracked
+        # the raw gradient of a non-monotonic circuit, which listed protective
+        # factors at their healthiest values as risk drivers.
+        contributions = []
+        for i, meta in enumerate(FEATURE_METADATA):
+            if meta["direction"] == "neutral":
+                contributions.append(0.0)
+                continue
+            deviation = float(x[i]) - 0.5
+            harmful = deviation if meta["direction"] == "lower_better" else -deviation
+            contributions.append(abs(float(grads[i])) * harmful)
         total_abs = sum(abs(c) for c in contributions) or 1.0
         feature_contributions = []
         for i, meta in enumerate(FEATURE_METADATA):
@@ -310,12 +336,12 @@ def predict():
             status = "measured"
             status_text = f"Measured via {meta['source']}"
         
-        # Determine health indicator
-        if meta["category"] in ["Emotional", "Behavioral"]:
-            # For emotional/behavioral: lower is better
+        # Determine health indicator from the feature's explicit direction
+        if meta["direction"] == "neutral":
+            health_indicator = "moderate"
+        elif meta["direction"] == "lower_better":
             health_indicator = "good" if value < 0.3 else ("moderate" if value < 0.6 else "concerning")
         else:
-            # For lifestyle/neurocognitive: higher is generally better
             health_indicator = "good" if value > 0.7 else ("moderate" if value > 0.4 else "concerning")
         
         feature_report.append({

@@ -116,7 +116,11 @@ function App() {
         features[3]  = proctorRatings.developmentalStage;
         features[9]  = proctorRatings.familyHistory;
         features[10] = proctorRatings.bullyingExposure;
-        features[11] = proctorRatings.safetyPerception;
+        // The form asks how *unsafe* the student feels (5 = unsafe), but the
+        // model was trained with feature 11 as safety, where high means safer
+        // (see the risk formula in generate_synthetic_data.py). Invert so the
+        // circuit receives the convention its weights were fitted on.
+        features[11] = 1 - proctorRatings.safetyPerception;
         features[12] = proctorRatings.socialMonitoring;
         features[13] = proctorRatings.physicalActivity;
 
@@ -337,7 +341,7 @@ function App() {
                                         <Activity className="w-4 h-4 text-primary" />
                                         Feature Contributions
                                     </CardTitle>
-                                    <CardDescription>Gradient-based attribution from the quantum circuit</CardDescription>
+                                    <CardDescription>Quantum circuit sensitivity, weighted by how far each factor sits from neutral</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

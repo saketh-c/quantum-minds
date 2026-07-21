@@ -31,9 +31,9 @@ const PROCTOR_FIELDS = [
     {
         id: 'safetyPerception',
         label: 'Safety Perception',
-        description: 'Perceived safety in environment (home, school)',
-        low: 'Unsafe',
-        high: 'Very safe',
+        description: 'How unsafe does the student feel in their environment (home, school)?',
+        low: 'Very safe',
+        high: 'Unsafe',
     },
     {
         id: 'socialMonitoring',
