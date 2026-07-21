@@ -1,5 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from werkzeug.middleware.proxy_fix import ProxyFix
 import pennylane as qml
 from pennylane import numpy as np
 import os
@@ -36,6 +39,18 @@ CORS(app,
 
 # Remove the manual after_request handler to avoid duplicate CORS headers
 # Flask-CORS already handles all CORS headers automatically
+
+# Rate limiting. The endpoints that reach Hume and Together spend real API
+# credits per call and run without auth, so cap them per-IP. Cloud Run sits
+# behind a proxy, so the client IP comes from X-Forwarded-For.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    storage_uri="memory://",
+    strategy="fixed-window",
+)
 
 # # Configuration (auth disabled)
 # app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'super-secret-key-change-this')
@@ -134,6 +149,7 @@ def health():
 
 @app.route('/predict', methods=['POST'])
 # @jwt_required()
+@limiter.limit("60 per hour")
 def predict():
     """
     Expects JSON: { "features": [0.1, 0.5, ... 14 items] }
@@ -163,7 +179,7 @@ def predict():
     risk_prob = (exp_val + 1) / 2
 
     # Feature 1: Gradient-based attribution
-    grad_fn = qml.grad(circuit, argnum=1)
+    grad_fn = qml.grad(circuit, argnums=1)
     try:
         grads = grad_fn(weights, x)
         # Signed contribution = gradient * feature value
@@ -391,6 +407,7 @@ Only return the JSON array, no other text."""
     })
 
 @app.route('/analyze-voice', methods=['POST'])
+@limiter.limit("15 per hour")
 def analyze_voice():
     """
     Receives audio blob, sends to Hume Prosody API, returns anxiety/isolation scores.
@@ -502,6 +519,7 @@ def analyze_voice():
 
 
 @app.route('/hume/token', methods=['POST'])
+@limiter.limit("15 per hour")
 def hume_token():
     """
     Fetches ephemeral access token for Hume EVI.
@@ -542,6 +560,7 @@ def hume_token():
 
 @app.route('/analyze_transcript', methods=['POST'])
 # @jwt_required()
+@limiter.limit("15 per hour")
 def analyze_transcript():
     """
     Analyzes transcript using Together API (Llama 3) to extract health ratings.

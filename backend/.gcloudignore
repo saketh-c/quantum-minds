@@ -3,3 +3,18 @@ __pycache__/
 *.sock
 *.ctl
 .git
+
+# Local virtualenvs -- ~1GB, otherwise uploaded to Cloud Build on every deploy.
+.venv/
+venv/
+
+# Training data. app.py loads only quantum_weights.npy at runtime; the CSVs and
+# training artifacts belong to train_vqc.py / evaluate_model.py, which never run
+# in the container.
+*.csv
+data_split.json
+training_history.json
+evaluation_results.json
+
+.env
+*.log

@@ -1,0 +1,14 @@
+# Serving-only dependencies. app.py imports nothing from torch, pandas, or
+# scikit-learn -- those are used exclusively by the training and evaluation
+# scripts (train_vqc.py, evaluate_model.py, preprocess_kaggle.py), which never
+# run in the container. Keeping them out cuts the image from ~1.3GB to ~400MB,
+# which is what determines Cloud Run cold-start time.
+# Use requirements.txt for local training/evaluation work.
+pennylane>=0.41.0
+autoray>=0.6.11
+flask
+flask_cors
+flask-limiter
+requests
+together
+gunicorn

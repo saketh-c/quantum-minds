@@ -2,6 +2,7 @@ pennylane>=0.41.0
 autoray>=0.6.11
 flask
 flask_cors
+flask-limiter
 pandas
 numpy
 scikit-learn
