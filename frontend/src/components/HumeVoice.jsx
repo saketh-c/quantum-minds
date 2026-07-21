@@ -4,7 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://quantum-backend-738298079218.us-central1.run.app';
+// Voice prosody needs a server to hold the Hume credentials. The app runs
+// fully client-side by default, so this is empty unless VITE_API_URL is set,
+// in which case prosody falls back to simulated scores.
+const BACKEND_URL = import.meta.env.VITE_API_URL || '';
 
 export default function HumeVoice({ onProsodyUpdate, onTranscriptUpdate }) {
     const [isRecording, setIsRecording] = useState(false);
@@ -69,6 +72,10 @@ export default function HumeVoice({ onProsodyUpdate, onTranscriptUpdate }) {
                 mediaRecorderRef.current.stream.getTracks().forEach(t => t.stop());
 
                 try {
+                    if (!BACKEND_URL) {
+                        throw new Error('No prosody backend configured');
+                    }
+
                     const formData = new FormData();
                     formData.append('audio', blob, 'recording.webm');
 

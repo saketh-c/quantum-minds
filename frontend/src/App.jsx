@@ -5,7 +5,7 @@ import ReactorSabotage from './components/games/ReactorSabotage';
 import HumeVoice from './components/HumeVoice';
 import SurveyForm from './components/SurveyForm';
 import ProctorForm from './components/ProctorForm';
-import axios from 'axios';
+import { predict } from './lib/predict';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,8 +15,6 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
-
-const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://quantum-backend-738298079218.us-central1.run.app';
 
 const STEPS = [
     { id: 'focus', label: 'Focus', icon: Activity },
@@ -129,16 +127,14 @@ function App() {
 
     const runQuantumReferral = async (features) => {
         try {
-            const response = await axios.post(`${BACKEND_URL}/predict`, {
-                features: features
-            }, {
-                timeout: 30000
-            });
-            setResult(response.data);
+            // The circuit runs in the browser; yield a frame first so the
+            // calculating screen paints before the simulation blocks the thread.
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            setResult(predict(features));
             setStep('result');
         } catch (err) {
             console.error(err);
-            setResult({ error: true, message: err.code === 'ECONNABORTED' ? 'Request timed out. The quantum backend may be starting up — please try again.' : 'Error contacting Quantum Core. Please try again.' });
+            setResult({ error: true, message: 'Error running Quantum Core. Please try again.' });
             setStep('result');
         }
     };
